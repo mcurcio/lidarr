@@ -4,7 +4,7 @@
   "description": "Photo management app",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha -r test/bootstrap test/unit"
   },
   "author": "",
   "license": "ISC",
@@ -29,6 +29,8 @@
     "walk": "^2.3.9"
   },
   "devDependencies": {
+    "chai": "^4.0.2",
+    "chai-as-promised": "^7.0.0",
     "mocha": "^3.4.2"
   }
 }
