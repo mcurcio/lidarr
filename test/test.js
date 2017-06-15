@@ -2,10 +2,15 @@
 
 'use strict';
 
-const imagemagick = require('imagemagick');
-const util = require('util');
+const fs = require('fs');
+const image = require('../lib/image.js');
 
-imagemagick.readMetadata('/Users/Matt/Development/lidarr/test/6132942800_3edd54eafc_o.jpg', function(err, metadata){
-  if (err) throw err;
-  console.log('Shot at '+util.inspect(metadata.exif));
-})
+image.identify('test.js').then((data) => {
+	console.log('data', data);
+}).catch((err) => {
+	console.error('error', err);
+});
+
+image.identify('6132942800_3edd54eafc_o.jpg').then((data) => {
+	console.log(data);
+});
