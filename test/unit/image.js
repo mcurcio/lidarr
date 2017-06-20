@@ -3,9 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const image = require('../../lib/image.js');
+const image = require(libPath('image'));
 
-const jpg = fixture('6132942800_3edd54eafc_o.jpg');
+const jpg = fixturePath('1.jpg');
 
 describe('image', () => {
 	it('should exist', () => {

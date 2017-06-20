@@ -2,17 +2,16 @@
 
 const path = require('path');
 
-const database = require(lib('db'));
-
-let TMP;
+const database = require(libPath('db'));
 
 describe('database', () => {
 	beforeEach(() => {
-		return makeTempDirectory().then(dir => { TMP = dir; });
+		return destroyTempDirectory()
+		.then(() => makeTempDirectory());
 	});
 
 	it('works', () => {
-		return database(path.join(TMP, 'db.sqlite')).then((db) =>{
+		return database(tmpPath('db.sqlite')).then((db) => {
 			let camera = new db.Camera;
 			camera.name = 'Camera';
 			return assert.isFulfilled(camera.save());
