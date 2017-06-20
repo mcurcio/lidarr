@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.4.1",
     "bunyan": "^1.8.10",
     "checksum": "^0.1.1",
     "es6-promisify": "^5.0.0",
