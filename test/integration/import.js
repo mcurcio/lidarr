@@ -12,8 +12,8 @@ describe('import', () => {
 	});
 
 	describe('importer', () => {
+		let db;
 		it('should work', () => {
-			let db;
 			return destroyTempDirectory()
 			.then(() => Promise.all([
 				makeTempDirectory('library'),
@@ -24,10 +24,35 @@ describe('import', () => {
 				db = db_;
 				return importer(tmpPath('imports'), tmpPath('library'), db);
 			}).then(() => {
-				return db.Photo.findAll();
-			}).then((photos) => {
-				assert.lengthOf(photos, 12);
+				return importer(tmpPath('imports'), tmpPath('library', 'copy'), db);
+			}).then(() => {
+				return Promise.all([
+					db.Photo.count(),
+					db.Location.count()
+				]);
+			}).then(([photoCount, locationCount]) => {
+				assert.equal(photoCount, 12);
+				assert.equal(locationCount, 24);
+			}).catch((e) => {
+				console.error('error', e);
+				throw e;
 			});
 		});
+/*
+		it('print', () => {
+			return db.Photo.findAll({
+				include: [{
+					model: db.Location
+				}]
+			}).then((photos) => {
+				for (let p of photos) {
+					console.log(p.get({
+      						plain: true
+    					}));
+				}
+			});
+	
+		});
+*/
 	});
 });
