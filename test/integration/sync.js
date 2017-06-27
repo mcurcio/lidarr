@@ -4,11 +4,11 @@ const fse = require('fs-extra');
 const path = require('path');
 
 const database = require(libPath('db'));
-const importer = require(libPath('import'));
+const sync = require(libPath('sync'));
 
 describe('import', () => {
 	it('should exist', () => {
-		assert.ok(importer);
+		assert.ok(sync);
 	});
 
 	describe('importer', () => {
@@ -22,9 +22,11 @@ describe('import', () => {
 			.then(() => database(tmpPath('db.sqlite')))
 			.then((db_) => {
 				db = db_;
-				return importer(tmpPath('imports'), tmpPath('library'), db);
+				return sync.dir(tmpPath('imports'), tmpPath('library'), db)
+					.then(() => {
+						return sync.dir(tmpPath('imports'), tmpPath('library', 'copy'), db);
+					});
 			}).then(() => {
-				return importer(tmpPath('imports'), tmpPath('library', 'copy'), db);
 			}).then(() => {
 				return Promise.all([
 					db.Photo.count(),
