@@ -22,7 +22,7 @@ describe('image', () => {
 		});
 
 		it('should reject non-image', () => {
-			return assert.becomes(image(__filename).stats(), null);
+			return assert.isRejected(image(__filename).stats());
 		});
 	});
 });
