@@ -34,7 +34,7 @@ describe('import', () => {
 				]);
 			}).then(([photoCount, locationCount]) => {
 				assert.equal(photoCount, 12);
-				assert.equal(locationCount, 24);
+				assert.equal(locationCount, 12);
 			}).catch((e) => {
 				console.error('error', e);
 				throw e;
