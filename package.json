@@ -28,7 +28,8 @@
     "read-chunk": "^2.0.0",
     "sequelize": "^4.1.0",
     "sharp": "^0.18.1",
-    "sqlite3": "^3.1.8"
+    "sqlite3": "^3.1.8",
+    "umzug": "^2.0.1"
   },
   "devDependencies": {
     "chai": "^4.0.2",

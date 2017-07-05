@@ -6,7 +6,7 @@ const path = require('path');
 const database = require(libPath('db'));
 const sync = require(libPath('sync'));
 
-describe('import', () => {
+describe.skip('import', () => {
 	it('should exist', () => {
 		assert.ok(sync);
 	});
@@ -53,7 +53,7 @@ describe('import', () => {
     					}));
 				}
 			});
-	
+
 		});
 */
 	});

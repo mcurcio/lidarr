@@ -7,7 +7,7 @@ const image = require(libPath('image'));
 
 const jpg = fixturePath('1.jpg');
 
-describe('image', () => {
+describe.skip('image', () => {
 	it('should exist', () => {
 		assert.ok(image);
 	});
