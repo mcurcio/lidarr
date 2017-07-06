@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const lidarr = require('..');
+
+const bunyan = require('bunyan');
+const bunyanDebugStream = require('bunyan-debug-stream');
+const fse = require('fs-extra');
+const path = require('path');
+
+const logger = bunyan.createLogger({
+	name: 'lidarr',
+	streams: [{
+        level: 'info',
+        type: 'raw',
+        stream: bunyanDebugStream({
+            basepath: path.resolve(path.join(__dirname, '..')),
+            forceColor: true
+        })
+	}],
+	serializers: bunyanDebugStream.serializers
+});
+
+const configPath = path.join(process.cwd(), 'config.json');
+let config = fse.readJsonSync(configPath, { throws: false });
+
+if (!config) {
+	logger.error({ config: configPath }, 'Missing config file');
+	//process.exit();
+}
+
+config = Object.assign({
+	data: path.join(process.cwd(), 'data'),
+	library: null,
+	import: []
+}, config);
+
+logger.info('Starting up')

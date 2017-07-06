@@ -6,7 +6,23 @@ const path = require('path');
 const database = require(libPath('db'));
 const sync = require(libPath('sync'));
 
-describe.skip('import', () => {
+function setupFixtures() {
+	let db;
+	return destroyTempDirectory()
+		.then(() => Promise.all([
+			makeTempDirectory('library'),
+			makeTempDirectory('imports')
+		]))
+		.then(() => fse.copy(FIXTURE_PATH, tmpPath('imports')))
+		.then(() => database(tmpPath('db.sqlite')))
+		.then(db_ => {
+			db = db_;
+			return db.migrator.up();
+		})
+		.then(() => db);
+}
+
+describe('import', () => {
 	it('should exist', () => {
 		assert.ok(sync);
 	});
@@ -14,19 +30,10 @@ describe.skip('import', () => {
 	describe('importer', () => {
 		let db;
 		it('should work', () => {
-			return destroyTempDirectory()
-			.then(() => Promise.all([
-				makeTempDirectory('library'),
-				makeTempDirectory('imports')
-			])).then(() => fse.copy(FIXTURE_PATH, tmpPath('imports')))
-			.then(() => database(tmpPath('db.sqlite')))
+			return setupFixtures()
 			.then((db_) => {
 				db = db_;
-				return sync.dir(tmpPath('imports'), tmpPath('library'), db)
-					.then(() => {
-						return sync.dir(tmpPath('imports'), tmpPath('library', 'copy'), db);
-					});
-			}).then(() => {
+				return sync.dir(tmpPath('imports'), tmpPath('library'), db).promise;
 			}).then(() => {
 				return Promise.all([
 					db.Photo.count(),
@@ -35,26 +42,20 @@ describe.skip('import', () => {
 			}).then(([photoCount, locationCount]) => {
 				assert.equal(photoCount, 12);
 				assert.equal(locationCount, 12);
-			}).catch((e) => {
-				console.error('error', e);
-				throw e;
 			});
 		});
-/*
-		it('print', () => {
-			return db.Photo.findAll({
-				include: [{
-					model: db.Location
-				}]
-			}).then((photos) => {
-				for (let p of photos) {
-					console.log(p.get({
-      						plain: true
-    					}));
-				}
-			});
 
+		it('should support cancellation', () => {
+			let db;
+			return setupFixtures()
+				.then((db_) => {
+					db = db_;
+					let importer = sync.dir(tmpPath('imports'), tmpPath('library'), db);
+					importer.cancel();
+					return importer.promise;
+				}).then(() => {
+					assert.becomes(db.Photo.count(), 0);
+				});
 		});
-*/
 	});
 });
