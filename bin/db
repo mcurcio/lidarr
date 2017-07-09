@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const db = require('../lib/db')(process.argv[2]);
+
+(async () => {
+	const repl = require('repl').start();
+
+	repl.context.db = await db;
+})();
