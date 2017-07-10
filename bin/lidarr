@@ -9,6 +9,7 @@ const bunyanDebugStream = require('bunyan-debug-stream');
 const fse = require('fs-extra');
 const path = require('path');
 
+(async () => {
 const logger = bunyan.createLogger({
 	name: 'lidarr',
 	streams: [{
@@ -38,4 +39,7 @@ config = Object.assign({
 
 logger.info('Starting up')
 
-const server = new lidarr.Server();
+	const server = new lidarr.Server();
+	await server.start(8080);
+	logger.info('Server started');
+})();

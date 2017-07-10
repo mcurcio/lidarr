@@ -5,15 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha -r test/bootstrap test/unit test/integration",
-	"db": "bin/db"
+    "db": "bin/db"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "async": "^2.4.1",
     "bunyan": "^1.8.10",
+    "bunyan-debug-stream": "^1.0.8",
     "checksum": "^0.1.1",
     "exif": "^0.6.0",
+    "express": "^4.15.3",
+    "express-graphql": "^0.6.6",
     "fs-extra": "^3.0.1",
     "graphql": "^0.9.6",
     "image-size": "^0.5.5",
