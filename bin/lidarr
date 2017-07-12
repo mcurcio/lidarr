@@ -37,9 +37,27 @@ config = Object.assign({
 	import: []
 }, config);
 
-logger.info('Starting up')
+	let dbFile = path.join(config.data, 'db.sqlite')
+	await fse.ensureDir(config.data);
+	console.log("db file", dbFile);
+	logger.debug({db: dbFile}, "Using database file")
+	let db = await lidarr.db(dbFile);//, console.log);//logger.info.bind(logger));
+	let dbNeedsMigration = await db.migrator.pending();
 
-	const server = new lidarr.Server();
+	if (dbNeedsMigration) {
+		logger.info("Upgrading database");
+		await db.migrator.up();
+	}
+
+	if (config.library) {
+		logger.info("Syncing library");
+		await lidarr.sync.dir(config.library, config.library, db, { move: false });
+		logger.info("Done syncing library");
+	}
+
+	logger.info('Starting up')
+
+	const server = new lidarr.Server(db, logger);
 	await server.start(8080);
 	logger.info('Server started');
 })();

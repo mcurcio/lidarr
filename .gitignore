@@ -2,4 +2,3 @@
 /node_modules
 /test/tmp
 .DS_Store
-/config.json
