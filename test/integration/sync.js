@@ -56,6 +56,23 @@ describe('import', () => {
 			await Promise.all(promises);
 		});
 
+		it('should match existing files', async () => {
+			let db = await setupFixtures();
+
+			await sync.dir(tmpPath('imports'), db).promise;
+			await sync.dir(tmpPath('imports'), db).promise;
+	
+			let [photoCount, locationCount, relativeCount] = Promise.all([
+				db.Photo.count(),
+				db.Location.count(),
+				db.Relative.count()
+			]);
+
+			assert.equal(photoCount, 16);
+			assert.equal(locationCount, 16);
+			assert.equal(relativeCount, 1);
+		});
+
 		it('should support cancellation', async () => {
 			let db = await setupFixtures();
 			let importer = sync.dir(tmpPath('imports'), db);

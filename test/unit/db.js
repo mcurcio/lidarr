@@ -3,41 +3,33 @@
 const path = require('path');
 
 const database = require(libPath('db'));
+console.log('required database');
 
 describe('database', () => {
-	beforeEach(() => {
-		return destroyTempDirectory()
-		.then(() => makeTempDirectory());
+	beforeEach(async () => {
+		console.log('beforeEach');
+		await destroyTempDirectory();
+		await makeTempDirectory();
 	});
 
-	it('requires migration', () => {
-		return database(tmpPath('db.sqlite'))
-			.then((db) => {
-				return db.migrator.pending().then(pending => {
-					return assert.isAtLeast(pending.length, 1);
-				});
-			});
+	it('requires migration', async () => {
+		console.log('create database', database);
+		let db = await database(tmpPath('db.sqlite'));
+		let pending = await db.migrator.pending();
+		assert.isAtLeast(pending.length, 1);
 	});
 
 	it('migrations succeed', () => {
-		return database(tmpPath('db.sqlite'))
-			.then(db => {
-				const p = db.migrator.up()
-					.catch(e => {
-						console.error('up', e);
-					})
-				return assert.isFulfilled(p);
-			});
+		let db = await database(tmpPath('db.sqlite'));
+		await db.migrator.up();
 	});
 
 	it('works', () => {
-		return database(tmpPath('db.sqlite'))
-			.then(db => {
-				return db.migrator.up().then(migrations => db);
-			}).then((db) => {
-			let camera = new db.Camera;
-			camera.name = 'Camera';
-			return assert.isFulfilled(camera.save());
-		});
+		let db = await database(tmpPath('db.sqlite'));
+		await db.migrator.up();
+
+		let camera = new db.Camera;
+		camera.name = 'Camera';
+		await assert.isFulfilled(camera.save());
 	});
 });
