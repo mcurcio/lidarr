@@ -29,7 +29,7 @@ describe('import', () => {
 		it('should work', async () => {
 			let db = await setupFixtures();
 			const LIB_DIR = tmpPath('library');
-			await sync.dir(tmpPath('imports'), LIB_DIR, db, {move:true}).promise;
+			await sync.dir(tmpPath('imports'), db, {move:LIB_DIR}).promise;
 			let [photoCount, locationCount, relativeCount, momentCount] = await Promise.all([
 				db.Photo.count(),
 				db.Location.count(),
@@ -58,7 +58,7 @@ describe('import', () => {
 
 		it('should support cancellation', async () => {
 			let db = await setupFixtures();
-			let importer = sync.dir(tmpPath('imports'), tmpPath('library'), db, { move: true });
+			let importer = sync.dir(tmpPath('imports'), db);
 			importer.cancel();
 			await importer.promise;
 			let photoCount = await db.Photo.count();
