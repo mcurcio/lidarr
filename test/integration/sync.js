@@ -29,7 +29,9 @@ describe('import', () => {
 		it('should work', async () => {
 			let db = await setupFixtures();
 			const LIB_DIR = tmpPath('library');
+
 			await sync.dir(tmpPath('imports'), db, {move:LIB_DIR}).promise;
+
 			let [photoCount, locationCount, relativeCount, momentCount] = await Promise.all([
 				db.Photo.count(),
 				db.Location.count(),
@@ -37,7 +39,7 @@ describe('import', () => {
 				db.Moment.count()
 			]);
 			assert.equal(photoCount, 16);
-			assert.equal(locationCount, 16);
+			assert.equal(locationCount, 17);
 			assert.equal(relativeCount, 1);
 			assert.equal(momentCount, 10);
 
@@ -61,15 +63,15 @@ describe('import', () => {
 
 			await sync.dir(tmpPath('imports'), db).promise;
 			await sync.dir(tmpPath('imports'), db).promise;
-	
-			let [photoCount, locationCount, relativeCount] = Promise.all([
+
+			let [photoCount, locationCount, relativeCount] = await Promise.all([
 				db.Photo.count(),
 				db.Location.count(),
 				db.Relative.count()
 			]);
 
 			assert.equal(photoCount, 16);
-			assert.equal(locationCount, 16);
+			assert.equal(locationCount, 17);
 			assert.equal(relativeCount, 1);
 		});
 
