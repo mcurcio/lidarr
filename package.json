@@ -4,7 +4,8 @@
   "description": "Photo management app",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -r test/bootstrap test/unit test/integration",
+    "test": "jest --config test/config.json",
+    "mocha": "mocha -r test/bootstrap test/unit test/integration",
     "db": "bin/db"
   },
   "author": "",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "chai": "^4.0.2",
     "chai-as-promised": "^7.0.0",
+    "jest": "^20.0.4",
     "mocha": "^3.4.2",
     "rimraf": "^2.6.1"
   }

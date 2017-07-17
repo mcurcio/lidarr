@@ -1,0 +1,8 @@
+{
+    "setupFiles": [
+        "./bootstrap.js"
+    ],
+    "testMatch": [
+        "**/test/(unit|integration)/*.js"
+    ]
+}
