@@ -1,7 +1,7 @@
 'use strict';
 
 import Hello from './hello.jsx';
-//import Route from './route.jsx';
+import Route from './route.jsx';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -30,7 +30,7 @@ console.log('relay', Relay);
 ReactDOM.render(
   <Relay.RootContainer
     Component={Hello}
-    route={profileRoute}
+    route={new Route()}
   />,
   document.getElementById('root')
 );

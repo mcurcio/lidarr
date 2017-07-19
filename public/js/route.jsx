@@ -1,23 +1,13 @@
 'use strict';
 
-import Relay from 'react-relay/compat';
+import Relay from 'react-relay';
 
-class Route extends Relay.Route {
-	constructor() {
-		super();
-	}
-	/*
-  static queries = {
-    factions: () => Relay.QL`query { factions(names: $factionNames) }`,
-  };
-  static routeName = 'StarWarsAppHomeRoute';
-  */
+export default class extends Relay.Route {
+	static queries = {
+		photo: (Component) => Relay.QL`query {
+			photo { ${Component.getFragment('photo')} }
+		}`
+  	};
+
+	static routeName = 'StarWarsAppHomeRoute';
 }
-
-Route.queries = {
-  factions: () => Relay.QL`query { factions(names: $factionNames) }`,
-};
-
-Route.routeNAme = 'StarWarsAppHomeRoute';
-
-export default Route;
