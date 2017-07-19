@@ -15,7 +15,7 @@ module.exports = async () => {
 		const schema = require('../lib/graphql')(db);
 
 		const s = await graphql(schema, introspectionQuery);
-		return s.data;
+		return s;
 	/*
 		console.log(util.inspect(s.data, {
 			breakLength: null,
@@ -23,3 +23,10 @@ module.exports = async () => {
 		}));
 	*/
 };
+
+if (require.main === module) {
+	(async () => {
+		const schema = await module.exports();
+		console.log(JSON.stringify(schema));
+	})();
+}

@@ -3,3 +3,5 @@
 /test/tmp
 .DS_Store
 /build
+/schema.json
+/src/__generated__
