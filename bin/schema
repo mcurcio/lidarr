@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const sequelize = require('../lib/db');
+const {graphql} = require('graphql');
+const {introspectionQuery} = require('graphql/utilities');
+const tmp = require('tmp');
+const util = require('util');
+
+module.exports = async () => {
+		const dir = tmp.dirSync({ unsafeCleanup: true });
+
+		const db = await sequelize(dir.name);
+		const schema = require('../lib/graphql')(db);
+
+		const s = await graphql(schema, introspectionQuery);
+		return s.data;
+	/*
+		console.log(util.inspect(s.data, {
+			breakLength: null,
+			depth: null
+		}));
+	*/
+};

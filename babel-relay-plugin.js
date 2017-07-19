@@ -1,4 +1,11 @@
-const getBabelRelayPlugin = require('babel-relay-plugin');
-const schema = require('./schema.json');
+'use strict';
 
-module.exports = getBabelRelayPlugin(schema);
+const getBabelRelayPlugin = require('babel-relay-plugin');
+
+let schema;
+(async () => {
+	schema = await require('./bin/schema')();
+
+	module.exports = getBabelRelayPlugin(schema);
+})();
+
