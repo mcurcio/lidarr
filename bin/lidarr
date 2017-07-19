@@ -51,7 +51,7 @@ config = Object.assign({
 
 	if (config.library) {
 		logger.info("Syncing library");
-		await lidarr.sync.dir(config.library, config.library, db, { move: false });
+		await lidarr.sync.dir(config.library, db);
 		logger.info("Done syncing library");
 	}
 
