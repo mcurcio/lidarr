@@ -11,6 +11,11 @@ class PhotoList extends React.Component {
 				ID="{photo.id}"
 				width="{photo.width}"
 				uuid="{photo.uuid}"
+				<ul>
+					{photo.locations.edges.map(location => <li key={location.node.id}>
+						{location.node.path}
+					</li>)}
+				</ul>
 			</div>)}
 		</ol>;
 	}
@@ -18,6 +23,14 @@ class PhotoList extends React.Component {
 
 export default createFragmentContainer(PhotoList, graphql`
 	fragment PhotoList on Photo @relay(plural: true) {
-		id, width, uuid
+		id, width, height, uuid
+		locations {
+			edges {
+				node {
+					id
+					path
+				}
+			}
+		}
 	}
 `);
