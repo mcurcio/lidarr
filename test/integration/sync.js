@@ -7,17 +7,17 @@ const database = require(libPath('db'));
 const sync = require(libPath('sync'));
 
 async function setupFixtures() {
-	await  destroyTempDirectory();
+	let tmpDir = await makeTempDirectory();
 	await Promise.all([
-		makeTempDirectory('library'),
-		makeTempDirectory('imports')
+		fse.mkdirs(path.join(tmpDir, 'library')),
+		fse.mkdirs(path.join(tmpDir, 'imports'))
 	]);
-	let db = await database(tmpPath('db.sqlite'));
+	let db = await database(path.join(tmpDir, 'db.sqlite'));
 	await Promise.all([
-		fse.copy(FIXTURE_PATH, tmpPath('imports')),
+		fse.copy(FIXTURE_PATH, path.join(tmpDir, 'imports')),
 		db.migrator.up()
 	]);
-	return db;
+	return [db, tmpDir];
 }
 
 describe('import', () => {
@@ -27,10 +27,10 @@ describe('import', () => {
 
 	describe('importer', () => {
 		it('should work', async () => {
-			let db = await setupFixtures();
-			const LIB_DIR = tmpPath('library');
+			let [db, tmpDir] = await setupFixtures();
+			const LIB_DIR = path.join(tmpDir, 'library');
 
-			await sync.dir(tmpPath('imports'), db, {move:LIB_DIR}).promise;
+			await sync.dir(path.join(tmpDir, 'imports'), db, {move:LIB_DIR}).promise;
 
 			let [photoCount, locationCount, relativeCount, momentCount] = await Promise.all([
 				db.Photo.count(),
@@ -38,31 +38,31 @@ describe('import', () => {
 				db.Relative.count(),
 				db.Moment.count()
 			]);
-			assert.equal(photoCount, 16);
-			assert.equal(locationCount, 17);
-			assert.equal(relativeCount, 1);
-			assert.equal(momentCount, 10);
+			expect(photoCount).toBe(16);
+			expect(locationCount).toBe(17);
+			expect(relativeCount).toBe(1);
+			expect(momentCount).toBe(10);
 
 			let [locations, relatives] = await Promise.all([
 				db.Location.all(),
 				db.Relative.all()
 			]);
-			let promises = locations.map(location => {
+			let promises = locations.map(async (location) => {
 				let p = path.join(LIB_DIR, location.path);
-				return assert.becomes(fse.pathExists(p), true);
+				expect(await fse.pathExists(p)).toBe(true);
 			});
-			promises.concat(relatives.map(relative => {
+			promises.concat(relatives.map(async (relative) => {
 				let p = path.join(LIB_DIR, relative.path);
-				return assert.becomes(fse.pathExists(p), true);
+				expect(await fse.pathExists(p)).toBe(true);
 			}));
 			await Promise.all(promises);
 		});
 
 		it('should match existing files', async () => {
-			let db = await setupFixtures();
+			let [db, tmpDir] = await setupFixtures();
 
-			await sync.dir(tmpPath('imports'), db).promise;
-			await sync.dir(tmpPath('imports'), db).promise;
+			await sync.dir(path.join(tmpDir, 'imports'), db).promise;
+			await sync.dir(path.join(tmpDir, 'imports'), db).promise;
 
 			let [photoCount, locationCount, relativeCount] = await Promise.all([
 				db.Photo.count(),
@@ -76,8 +76,8 @@ describe('import', () => {
 		});
 
 		it('should support cancellation', async () => {
-			let db = await setupFixtures();
-			let importer = sync.dir(tmpPath('imports'), db);
+			let [db, tmpDir] = await setupFixtures();
+			let importer = sync.dir(path.join(tmpDir, 'imports'), db);
 			importer.cancel();
 			await importer.promise;
 			let photoCount = await db.Photo.count();

@@ -11,10 +11,9 @@ describe('moment', () => {
 	let Photo;
 
 	beforeEach(async () => {
-		await destroyTempDirectory();
-		await makeTempDirectory();
+		let tmpDir = await makeTempDirectory();
 
-		db = await database(tmpPath('db.sqlite'));
+		db = await database(path.join(tmpDir, 'db.sqlite'));
 		await db.migrator.up();
 
 		Moment = db.Moment;
