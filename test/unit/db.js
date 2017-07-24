@@ -22,6 +22,11 @@ describe('database', () => {
 		await db.migrator.up();
 	});
 
+	it('test listenerd', async () => {
+		let db = await database(path.join(tmpDir, 'db.sqlite'));
+		await db.migrator.up();
+	});
+
 	it('works', async () => {
 		let db = await database(path.join(tmpDir, 'db.sqlite'));
 		await db.migrator.up();

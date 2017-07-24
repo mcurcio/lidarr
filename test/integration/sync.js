@@ -5,6 +5,7 @@ const path = require('path');
 
 const database = require(libPath('db'));
 const sync = require(libPath('sync'));
+const {SyncTask} = require(libPath('task'));
 
 async function setupFixtures() {
 	let tmpDir = await makeTempDirectory();
@@ -28,9 +29,10 @@ describe('import', () => {
 	describe('importer', () => {
 		it('should work', async () => {
 			let [db, tmpDir] = await setupFixtures();
+			const IMP_DIR = path.join(tmpDir, 'imports');
 			const LIB_DIR = path.join(tmpDir, 'library');
 
-			await sync.dir(path.join(tmpDir, 'imports'), db, {move:LIB_DIR}).promise;
+			await (new SyncTask(IMP_DIR, db, {move:LIB_DIR})).run();
 
 			let [photoCount, locationCount, relativeCount, momentCount] = await Promise.all([
 				db.Photo.count(),
@@ -61,8 +63,8 @@ describe('import', () => {
 		it('should match existing files', async () => {
 			let [db, tmpDir] = await setupFixtures();
 
-			await sync.dir(path.join(tmpDir, 'imports'), db).promise;
-			await sync.dir(path.join(tmpDir, 'imports'), db).promise;
+			await (new SyncTask(path.join(tmpDir, 'imports'), db)).run();
+			await (new SyncTask(path.join(tmpDir, 'imports'), db)).run();
 
 			let [photoCount, locationCount, relativeCount] = await Promise.all([
 				db.Photo.count(),
@@ -77,9 +79,10 @@ describe('import', () => {
 
 		it('should support cancellation', async () => {
 			let [db, tmpDir] = await setupFixtures();
-			let importer = sync.dir(path.join(tmpDir, 'imports'), db);
-			importer.cancel();
-			await importer.promise;
+			let task = new SyncTask(path.join(tmpDir, 'imports'), db);
+			task.start();
+			task.cancel();
+			await task.promise();
 			let photoCount = await db.Photo.count();
 			assert.equal(photoCount, 0);
 		});

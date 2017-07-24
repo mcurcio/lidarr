@@ -2,7 +2,7 @@
 
 const path = require('path');
 
-['db', 'image', 'sync'].forEach(key => {
+['db', 'image', 'sync', 'task'].forEach(key => {
 	exports[key] = require(path.join(__dirname, 'lib', key));
 });
 
