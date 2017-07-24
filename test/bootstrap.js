@@ -5,10 +5,10 @@ const path = require('path');
 
 const chai = require('chai');
 const rimraf = require('rimraf');
+const tmp = require('tmp');
 
 global.LIB_PATH = path.join(__dirname, '..', 'lib');
 global.FIXTURE_PATH = path.join(__dirname, 'fixtures');
-global.TMP_PATH = path.join(__dirname, 'tmp');
 
 // set up chai/assert
 chai.use(require('chai-as-promised'));
@@ -23,12 +23,15 @@ function pathConcatFunctionFactory(base) {
 
 global.fixturePath = pathConcatFunctionFactory(FIXTURE_PATH);
 global.libPath = pathConcatFunctionFactory(LIB_PATH);
-global.tmpPath = pathConcatFunctionFactory(TMP_PATH);
 
-global.destroyTempDirectory = () => {
-	return fse.remove(TMP_PATH);
-};
-
-global.makeTempDirectory = (...files) => {
-	return fse.mkdirs(tmpPath(...files));
+global.makeTempDirectory = () => {
+	return new Promise((resolve, reject) => {
+		tmp.dir({
+			unsafeCleanup: true,
+			prefix: 'lidarr_test_'
+		}, (err, dir) => {
+			if (err) return reject(err);
+			resolve(dir);
+		});
+	});
 };
