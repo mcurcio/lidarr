@@ -36,4 +36,14 @@ describe('database', () => {
 		camera.name = 'Camera';
 		await assert.isFulfilled(camera.save());
 	});
+
+	describe('thumbnail', async () => {
+		it('should have default UUID', async () => {
+			let db = await database(path.join(tmpDir, 'db.sqlite'));
+			await db.migrator.up();
+
+			let thumb = new db.Thumbnail;
+			expect(thumb.uuid).toBeTruthy();
+		});
+	});
 });

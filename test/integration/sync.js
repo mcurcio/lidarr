@@ -4,7 +4,6 @@ const fse = require('fs-extra');
 const path = require('path');
 
 const database = require(libPath('db'));
-const sync = require(libPath('sync'));
 const {SyncTask} = require(libPath('task'));
 
 async function setupFixtures() {
@@ -22,10 +21,6 @@ async function setupFixtures() {
 }
 
 describe('import', () => {
-	it('should exist', () => {
-		assert.ok(sync);
-	});
-
 	describe('importer', () => {
 		it('should work', async () => {
 			let [db, tmpDir] = await setupFixtures();
