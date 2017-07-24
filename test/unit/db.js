@@ -14,12 +14,13 @@ describe('database', () => {
 	it('requires migration', async () => {
 		let db = await database(path.join(tmpDir, 'db.sqlite'));
 		let pending = await db.migrator.pending();
-		assert.isAtLeast(pending.length, 1);
+		assert.isAtLeast(pending.length, 2);
 	});
 
 	it('migrations succeed', async () => {
 		let db = await database(path.join(tmpDir, 'db.sqlite'));
 		await db.migrator.up();
+		expect((await db.migrator.pending()).length).toBe(0);
 	});
 
 	it('test listenerd', async () => {
