@@ -41,6 +41,6 @@ describe('thumbnail', async () => {
 		let files = [];
 		fsp.traverseTreeSync(THUMB_DIR, file => files.push(file), dir => true);
 
-		expect(files.length).toBe(32);
+		expect(files.length).toBe(16);
 	});
 });
