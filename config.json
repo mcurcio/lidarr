@@ -1,3 +1,4 @@
 {
+	"db": "data/lidarr.db",
 	"library": "test/fixtures"
 }

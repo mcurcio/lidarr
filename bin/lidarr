@@ -10,54 +10,26 @@ const fse = require('fs-extra');
 const path = require('path');
 
 (async () => {
-const logger = bunyan.createLogger({
-	name: 'lidarr',
-	streams: [{
-        level: 'info',
-        type: 'raw',
-        stream: bunyanDebugStream({
-            basepath: path.resolve(path.join(__dirname, '..')),
-            forceColor: true
-        })
-	}],
-	serializers: bunyanDebugStream.serializers
-});
+	const env = await lidarr.Environment.load({
+		file: path.join(process.cwd(), 'config.json')
+	});
 
-const configPath = path.join(process.cwd(), 'config.json');
-let config = fse.readJsonSync(configPath, { throws: false });
-
-if (!config) {
-	logger.error({ config: configPath }, 'Missing config file');
-	//process.exit();
-}
-
-config = Object.assign({
-	data: path.join(process.cwd(), 'data'),
-	library: null,
-	import: []
-}, config);
-
-	let dbFile = path.join(config.data, 'db.sqlite')
-	await fse.ensureDir(config.data);
-	console.log("db file", dbFile);
-	logger.debug({db: dbFile}, "Using database file")
-	let db = await lidarr.db(dbFile);//, console.log);//logger.info.bind(logger));
-	let dbNeedsMigration = await db.migrator.pending();
+	let dbNeedsMigration = await env.db.migrator.pending();
 
 	if (dbNeedsMigration) {
-		logger.info("Upgrading database");
-		await db.migrator.up();
+		env.logger.info("Upgrading database");
+		await env.db.migrator.up();
 	}
 
-	if (config.library) {
-		logger.info("Syncing library");
-		await lidarr.sync.dir(config.library, db);
-		logger.info("Done syncing library");
+	if (env.config.library) {
+		env.logger.info("Syncing library");
+		await lidarr.sync.dir(env.config.library, env.db);
+		env.logger.info("Done syncing library");
 	}
 
-	logger.info('Starting up')
+	env.logger.info('Starting up')
 
-	const server = new lidarr.Server(db, logger);
+	const server = new lidarr.Server(env.db, env.logger);
 	await server.start(8080);
-	logger.info('Server started');
+	env.logger.info('Server started');
 })();
