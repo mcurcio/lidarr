@@ -24,7 +24,7 @@ async function setupFixtures() {
 
 describe('thumbnail', async () => {
 	it('should work', async () => {
-		jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+		jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
 
 		let [db, tmpDir] = await setupFixtures();
 
