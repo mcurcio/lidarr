@@ -5,6 +5,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const webpack = require('webpack');
 
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 class RelayCompilerPlugin {
@@ -28,9 +29,14 @@ module.exports = {
 	module: {
 		loaders: [
 			{ test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
+			{
+				test: /\.css$/,
+				loader: ExtractTextPlugin.extract("css-loader")
+			}
 		]
 	},
 	plugins: [
+		new ExtractTextPlugin("/assets/style.css"),
 		new RelayCompilerPlugin(),
 //		new webpack.optimize.UglifyJsPlugin(),
 		new HtmlWebpackPlugin({

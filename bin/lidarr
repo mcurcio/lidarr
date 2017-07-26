@@ -16,7 +16,7 @@ const path = require('path');
 
 	let dbNeedsMigration = await env.db.migrator.pending();
 
-	if (dbNeedsMigration) {
+	if (dbNeedsMigration.length) {
 		env.logger.info("Upgrading database");
 		await env.db.migrator.up();
 	}
@@ -27,9 +27,12 @@ const path = require('path');
 		env.logger.info("Done syncing library");
 	}
 
+	env.logger.info("Generating thumbnails");
+	await (new lidarr.task.ThumbnailTask(env.config.library, path.join(env.config.data, 'thumbs'), env.db)).run();
+
 	env.logger.info('Starting up')
 
-	const server = new lidarr.Server(env.db, env.logger);
+	const server = new lidarr.Server(env.db, env.logger, env);
 	await server.start(8080);
 	env.logger.info('Server started');
 })();

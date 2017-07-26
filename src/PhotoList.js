@@ -7,16 +7,16 @@ class PhotoList extends React.Component {
 	render() {
 		const photos = this.props.data;
 		return <ol>
-			{photos.map(photo => <div key={photo.id}>
+			{photos.map(photo =>
+				<li>
+					{photo.thumbnails.edges.map(thumbnail => {
+						return <img src={thumbnail.node.url} className="img-fluid" alt="Responsive image"></img>
+					})}
+				<div key={photo.id}>
 				ID="{photo.id}"
 				width="{photo.width}"
 				uuid="{photo.uuid}"
-				<ul>
-					{photo.locations.edges.map(location => <li key={location.node.id}>
-						{location.node.path}
-					</li>)}
-				</ul>
-			</div>)}
+			</div></li>)}
 		</ol>;
 	}
 };
@@ -24,11 +24,10 @@ class PhotoList extends React.Component {
 export default createFragmentContainer(PhotoList, graphql`
 	fragment PhotoList on Photo @relay(plural: true) {
 		id, width, height, uuid
-		locations {
+		thumbnails(first:1) {
 			edges {
 				node {
-					id
-					path
+					width height url
 				}
 			}
 		}
