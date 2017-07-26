@@ -23,6 +23,7 @@
     "bunyan": "^1.8.10",
     "bunyan-debug-stream": "^1.0.8",
     "checksum": "^0.1.1",
+    "convict": "^4.0.0",
     "event-kit": "^2.3.0",
     "exif": "^0.6.0",
     "express": "^4.15.3",

@@ -14,6 +14,8 @@ const path = require('path');
 		file: path.join(process.cwd(), 'config.json')
 	});
 
+	env.logger.info("Starting app");
+
 	let dbNeedsMigration = await env.db.migrator.pending();
 
 	if (dbNeedsMigration.length) {
@@ -21,14 +23,14 @@ const path = require('path');
 		await env.db.migrator.up();
 	}
 
-	if (env.config.library) {
+	if (env.config.paths.lib) {
 		env.logger.info("Syncing library");
-		await lidarr.sync.dir(env.config.library, env.db);
+		await lidarr.sync.dir(env.config.paths.lib, env.db);
 		env.logger.info("Done syncing library");
 	}
 
 	env.logger.info("Generating thumbnails");
-	await (new lidarr.task.ThumbnailTask(env.config.library, path.join(env.config.data, 'thumbs'), env.db)).run();
+	await (new lidarr.task.ThumbnailTask(env.config.paths.lib, env.config.paths.thumbs, env.db)).run();
 
 	env.logger.info('Starting up')
 
