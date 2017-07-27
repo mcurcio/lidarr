@@ -1,5 +1,7 @@
 'use strict';
 
+const Environment = require('../lib/env');
+
 const fse = require('fs-extra');
 const path = require('path');
 
@@ -34,4 +36,46 @@ global.makeTempDirectory = () => {
 			resolve(dir);
 		});
 	});
+};
+
+global.TestEnvironment =
+class TestEnvironment {
+	static create(config={}) {
+		return (async () => {
+			let tmpDir = null;
+
+			if (!config.hasOwnProperty('data')) {
+				tmpDir = await makeTempDirectory();
+				config.data = tmpDir;
+			}
+
+			let env = await Environment.load({config});
+
+			env.config.paths.imports = path.join(env.config.paths.data, 'imports');
+
+			await Promise.all([
+				env.db.migrator.up(),
+				fse.mkdirs(env.config.paths.imports)
+			]);
+			await fse.copy(FIXTURE_PATH, env.config.paths.imports);
+
+			return new TestEnvironment(env, tmpDir);
+		})();
+	}
+
+	constructor(env, tmpDir=null) {
+		this.env = env;
+		this.tmp = tmpDir;
+
+		// convenience
+		this.config = env.config;
+		this.db = env.db;
+		this.logger = env.logger;
+	}
+
+	destroy() {
+		if (this.tmp) {
+			return fse.remove(this.tmp);
+		}
+	}
 };

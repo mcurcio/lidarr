@@ -30,7 +30,7 @@ const path = require('path');
 	}
 
 	env.logger.info("Generating thumbnails");
-	await (new lidarr.task.ThumbnailTask(env.config.paths.library, env.config.paths.thumbs, env.db)).run();
+	await (new lidarr.task.ThumbnailTask(env)).run();
 
 	env.logger.info('Starting up')
 
