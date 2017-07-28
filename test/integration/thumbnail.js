@@ -17,11 +17,14 @@ describe('thumbnail', async () => {
 		expect(fsp.listSync(tenv.config.paths.thumbs).length).toBe(0);
 
 		await (new tasks.ThumbnailTask(tenv.env)).run();
+		await (new tasks.ThumbnailTask(tenv.env)).run();
+		await (new tasks.ThumbnailTask(tenv.env)).run();
 
 		let files = [];
 		fsp.traverseTreeSync(tenv.config.paths.thumbs, file => files.push(file), dir => true);
 
-		expect(files.length).toBe(16);
+		let photoCount = await tenv.db.Photo.count();
+		expect(files.length).toBe(photoCount * tenv.db.Thumbnail.sizes.length);
 
 		await tenv.destroy();
 	});
