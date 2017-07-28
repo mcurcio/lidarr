@@ -31,7 +31,17 @@ const path = require('path');
 
 	env.logger.info("Generating thumbnails");
 	await (new lidarr.task.ThumbnailTask(env)).run();
-
+/*
+	const seq = env.db.sequelize;
+	const thumbs = await env.db.Thumbnail.findAll({
+		attributes: ['width', 'height',
+			[seq.fn('min', seq.col('width'), seq.col('height')), 'min'],
+			[seq.fn('max', seq.col('width'), seq.col('height')), 'max']
+		]
+	});
+	console.log('thumbnails', JSON.stringify(thumbs));
+	process.exit();
+*/
 	env.logger.info('Starting up')
 
 	const server = new lidarr.Server(env.db, env.logger, env);
