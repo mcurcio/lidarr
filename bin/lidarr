@@ -23,9 +23,9 @@ const path = require('path');
 		await env.db.migrator.up();
 	}
 
-	if (env.config.paths.lib) {
+	if (env.config.paths.library) {
 		env.logger.info("Syncing library");
-		await lidarr.sync.dir(env.config.paths.library, env);
+		await (new lidarr.task.SyncTask(env.config.paths.library, env)).run();
 		env.logger.info("Done syncing library");
 	}
 
