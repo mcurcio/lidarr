@@ -9,7 +9,7 @@ describe('task', async () => {
 			let cb = jest.fn();
 			task.onDidFinish(cb);
 			await task.run();
-			expect(cb.mock.calls.length).toBe(1);
+			assert.lengthOf(cb.mock.calls, 1);
 		});
 	});
 });

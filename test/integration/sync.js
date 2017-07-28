@@ -5,21 +5,25 @@ const path = require('path');
 
 const {SyncTask} = require(libPath('task'));
 
-describe('import', () => {
-	let tenv;
-	let tenvs = [];
-	
-	beforeEach(async () => {
-		tenv = await TestEnvironment.create();
-		tenvs.push(tenv);
-	});
+describe('sync', () => {
+	describe('task', () => {
+		const tenvs = [];
 
-	afterAll(async () => {
-		return Promise.all(tenvs.map(e => e.destroy()));
-	});
+		beforeEach(async () => {
+			this.tenv = await TestEnvironment.create();
+		});
 
-	describe('importer', () => {
+		afterEach(async () => {
+			tenvs.push(this.tenv);
+		});
+
+		after(async () => {
+			return tenvs.map(t => t.destroy());
+		});
+
 		it('should work', async () => {
+			const tenv = this.tenv;
+
 			await (new SyncTask(tenv.config.paths.imports, tenv.env, {move: tenv.config.paths.library})).run();
 
 			let [photoCount, locationCount, relativeCount, momentCount] = await Promise.all([
@@ -28,10 +32,10 @@ describe('import', () => {
 				tenv.db.Relative.count(),
 				tenv.db.Moment.count()
 			]);
-			expect(photoCount).toBe(16);
-			expect(locationCount).toBe(17);
-			expect(relativeCount).toBe(1);
-			expect(momentCount).toBe(10);
+			assert.strictEqual(photoCount, 16);
+			assert.strictEqual(locationCount, 17);
+			assert.strictEqual(relativeCount, 1);
+			assert.strictEqual(momentCount, 10);
 
 			let [locations, relatives] = await Promise.all([
 				tenv.db.Location.all(),
@@ -39,16 +43,18 @@ describe('import', () => {
 			]);
 			let promises = locations.map(async (location) => {
 				let p = path.join(tenv.config.paths.library, location.path);
-				expect(await fse.pathExists(p)).toBe(true);
+				assert(await fse.pathExists(p));
 			});
 			promises.concat(relatives.map(async (relative) => {
 				let p = path.join(tenv.config.paths.library, relative.path);
-				expect(await fse.pathExists(p)).toBe(true);
+				assert(await fse.pathExists(p));
 			}));
 			await Promise.all(promises);
 		});
 
 		it('should match existing files', async () => {
+			const tenv = this.tenv;
+
 			await (new SyncTask(tenv.config.paths.imports, tenv.env)).run();
 			await (new SyncTask(tenv.config.paths.imports, tenv.env)).run();
 
@@ -58,18 +64,21 @@ describe('import', () => {
 				tenv.db.Relative.count()
 			]);
 
-			assert.equal(photoCount, 16);
-			assert.equal(locationCount, 17);
-			assert.equal(relativeCount, 1);
+			assert.strictEqual(photoCount, 16);
+			assert.strictEqual(locationCount, 17);
+			assert.strictEqual(relativeCount, 1);
 		});
 
 		it('should support cancellation', async () => {
+			const tenv = this.tenv;
+
 			let task = new SyncTask(tenv.config.paths.imports, tenv.env);
+			await assert.isRejected(task.promise());
 			task.start();
 			task.cancel();
 			await task.promise();
 			let photoCount = await tenv.db.Photo.count();
-			assert.equal(photoCount, 0);
+			assert.strictEqual(photoCount, 0);
 		});
 	});
 });

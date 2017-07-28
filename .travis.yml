@@ -3,5 +3,5 @@
     "node_js": [
         "node"
     ],
-    "script": "npm test -- --runInBand"
+    "script": "npm test"
 }

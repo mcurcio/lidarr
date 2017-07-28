@@ -20,7 +20,7 @@ describe('database', () => {
 	it('migrations succeed', async () => {
 		let db = await database(path.join(tmpDir, 'db.sqlite'));
 		await db.migrator.up();
-		expect((await db.migrator.pending()).length).toBe(0);
+		assert.lengthOf(await db.migrator.pending(), 0);
 	});
 
 	it('test listenerd', async () => {
@@ -43,7 +43,7 @@ describe('database', () => {
 			await db.migrator.up();
 
 			let thumb = new db.Thumbnail;
-			expect(thumb.uuid).toBeTruthy();
+			assert(thumb.uuid);
 		});
 	});
 });

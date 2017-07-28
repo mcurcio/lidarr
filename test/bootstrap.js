@@ -16,6 +16,11 @@ global.FIXTURE_PATH = path.join(__dirname, 'fixtures');
 chai.use(require('chai-as-promised'));
 global.assert = chai.assert;
 
+global.expect = chai.expect;
+
+// jest mock functions
+global.jest = require('jest-mock');
+
 // utility path functions
 function pathConcatFunctionFactory(base) {
 	return (...files) => {
@@ -40,7 +45,15 @@ global.makeTempDirectory = () => {
 
 global.TestEnvironment =
 class TestEnvironment {
+	static get DEFAULT_CONFIG() {
+		return {
+			console: false
+		};
+	}
+
 	static create(config={}) {
+		config = Object.assign(TestEnvironment.DEFAULT_CONFIG, config);
+
 		return (async () => {
 			let tmpDir = null;
 
