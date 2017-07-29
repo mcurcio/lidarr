@@ -1,11 +1,12 @@
 'use strict';
 
-import PhotoList from './PhotoList';
+import MomentList from './MomentList';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
 
 import {Button, Navbar} from 'reactstrap';
+
 import 'bootstrap/dist/css/bootstrap.css';
 import './vendor/dashboard.css';
 
@@ -42,8 +43,8 @@ ReactDOM.render(
 		environment={env}
 		query={graphql`
 			query AppQuery {
-				photos {
-					...PhotoList
+				moments {
+					...MomentList
 				}
 			}
 		`}
@@ -51,6 +52,7 @@ ReactDOM.render(
 		render={({error, props}) => {
 			if (error) {
 				console.error('error', error);
+				return <div>Error</div>;
 			} else if (props) {
 				return <div>
 					<Navbar className="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
@@ -70,7 +72,7 @@ ReactDOM.render(
 							<main className="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
 								<h1>Dashboard</h1>
 
-								<PhotoList data={props.photos} />
+								<MomentList data={props.moments}></MomentList>
 							</main>
 						</div>
 					</div>

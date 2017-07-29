@@ -7,21 +7,18 @@ const {graphql} = require('graphql');
 const {introspectionQuery} = require('graphql/utilities');
 const tmp = require('tmp');
 const util = require('util');
+const Environment = require('../lib/env');
 
 module.exports = async () => {
 		const dir = tmp.dirSync({ unsafeCleanup: true });
 
-		const db = await sequelize(dir.name);
-		const schema = require('../lib/graphql')(db);
+		const config = {data: dir.name};
+		const env = await Environment.load({config});
+
+		const schema = require('../lib/graphql')(env);
 
 		const s = await graphql(schema, introspectionQuery);
 		return s;
-	/*
-		console.log(util.inspect(s.data, {
-			breakLength: null,
-			depth: null
-		}));
-	*/
 };
 
 if (require.main === module) {

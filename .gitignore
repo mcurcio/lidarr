@@ -5,3 +5,4 @@
 /build
 /schema.json
 /src/__generated__
+/test_data
