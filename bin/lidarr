@@ -44,7 +44,7 @@ const path = require('path');
 */
 	env.logger.info('Starting up')
 
-	const server = new lidarr.Server(env.db, env.logger, env);
+	const server = new lidarr.Server(env);
 	await server.start(8080);
 	env.logger.info('Server started');
 })();
