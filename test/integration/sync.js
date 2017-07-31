@@ -9,19 +9,21 @@ describe('sync', () => {
 	describe('task', () => {
 		const tenvs = [];
 
-		beforeEach(async () => {
+		beforeEach(async function () {
+			this.timeout(10000);
+
 			this.tenv = await TestEnvironment.create();
 		});
 
-		afterEach(async () => {
+		afterEach(async function () {
 			tenvs.push(this.tenv);
 		});
 
-		after(async () => {
+		after(async function () {
 			return tenvs.map(t => t.destroy());
 		});
 
-		it('should work', async () => {
+		it('should work', async function () {
 			const tenv = this.tenv;
 
 			await (new SyncTask(tenv.config.paths.imports, tenv.env, {move: tenv.config.paths.library})).run();
@@ -52,7 +54,7 @@ describe('sync', () => {
 			await Promise.all(promises);
 		});
 
-		it('should match existing files', async () => {
+		it('should match existing files', async function () {
 			const tenv = this.tenv;
 
 			await (new SyncTask(tenv.config.paths.imports, tenv.env)).run();
@@ -69,7 +71,7 @@ describe('sync', () => {
 			assert.strictEqual(relativeCount, 1);
 		});
 
-		it('should support cancellation', async () => {
+		it('should support cancellation', async function () {
 			const tenv = this.tenv;
 
 			let task = new SyncTask(tenv.config.paths.imports, tenv.env);
