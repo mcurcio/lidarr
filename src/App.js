@@ -43,7 +43,7 @@ ReactDOM.render(
 		environment={env}
 		query={graphql`
 			query AppQuery {
-				moments {
+				moments(limit:100) {
 					...MomentList
 				}
 			}

@@ -7,8 +7,13 @@ class MomentWidget extends React.Component {
 	render() {
 		const moment = this.props.data;
 
+		let image = "";
+		if (moment.lead.thumbnail) {
+			image = moment.lead.thumbnail.url
+		}
+
 		return <div style={{
-			backgroundImage: `url(${moment.lead.thumbnail.url})`,
+			backgroundImage: `url(${image})`,
 			backgroundPosition: 'center center',
 			backgroundRepeat: 'no-repeat',
 			backgroundSize: 'cover',

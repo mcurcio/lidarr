@@ -1,4 +1,5 @@
 {
-	"data": "data/",
-	"library": "test/fixtures"
+	"data": "test_data/data",
+	"library": "test_data/library",
+	"organize": true
 }

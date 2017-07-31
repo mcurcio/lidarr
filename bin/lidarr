@@ -23,28 +23,64 @@ const path = require('path');
 		await env.db.migrator.up();
 	}
 
-	if (env.config.paths.library) {
-		env.logger.info("Syncing library");
-		await (new lidarr.task.SyncTask(env.config.paths.library, env)).run();
-		env.logger.info("Done syncing library");
-	}
-
-	env.logger.info("Generating thumbnails");
-	await (new lidarr.task.ThumbnailTask(env)).run();
-/*
-	const seq = env.db.sequelize;
-	const thumbs = await env.db.Thumbnail.findAll({
-		attributes: ['width', 'height',
-			[seq.fn('min', seq.col('width'), seq.col('height')), 'min'],
-			[seq.fn('max', seq.col('width'), seq.col('height')), 'max']
-		]
-	});
-	console.log('thumbnails', JSON.stringify(thumbs));
-	process.exit();
-*/
 	env.logger.info('Starting up')
 
 	const server = new lidarr.Server(env);
 	await server.start(8080);
 	env.logger.info('Server started');
+
+	let exiting = false;
+	let task = null;
+	let handle = null;
+
+	if (env.config.paths.library) {
+		let tasks = () => {
+			(async () => {
+				env.logger.info("Syncing library");
+				const organize = env.config.get('organize');
+				task = new lidarr.task.SyncTask(env.config.paths.library, env, { organize });
+				await task.run();
+				task = null;
+				env.logger.info("Done syncing library");
+
+				if (exiting) {
+					return;
+				}
+
+				env.logger.info("Generating thumbnails");
+				task = new lidarr.task.ThumbnailTask(env);
+				await task.run();
+				task = null;
+				env.logger.info("Done generating thumbnails");
+
+				if (!exiting) {
+					handle = setTimeout(tasks, 60000);
+				}
+			})();
+		};
+		tasks();
+	}
+
+	process.on('SIGINT', () => {
+		env.logger.info("Shutting down");
+
+		(async () => {
+			exiting = true;
+
+			clearTimeout(handle);
+
+			if (task) {
+				env.logger.info("Waiting for task to complete");
+				task.cancel();
+				await task.promise();
+				env.logger.info("Task complete");
+			}
+
+			await server.stop();
+			env.logger.info("Server stopped");
+
+			await env.db.close();
+			env.logger.info("Database closed");
+		})();
+	});
 })();
