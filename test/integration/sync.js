@@ -10,8 +10,6 @@ describe('sync', () => {
 		const tenvs = [];
 
 		beforeEach(async function () {
-			this.timeout(10000);
-
 			this.tenv = await TestEnvironment.create();
 		});
 
@@ -24,6 +22,8 @@ describe('sync', () => {
 		});
 
 		it('should work', async function () {
+			this.timeout(10000);
+
 			const tenv = this.tenv;
 
 			await (new SyncTask(tenv.config.paths.imports, tenv.env, {move: tenv.config.paths.library})).run();
@@ -55,6 +55,8 @@ describe('sync', () => {
 		});
 
 		it('should match existing files', async function () {
+			this.timeout(10000);
+
 			const tenv = this.tenv;
 
 			await (new SyncTask(tenv.config.paths.imports, tenv.env)).run();
@@ -72,6 +74,8 @@ describe('sync', () => {
 		});
 
 		it('should support cancellation', async function () {
+			this.timeout(10000);
+
 			const tenv = this.tenv;
 
 			let task = new SyncTask(tenv.config.paths.imports, tenv.env);
