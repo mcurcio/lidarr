@@ -20,7 +20,7 @@ class RelayCompilerPlugin {
 module.exports = {
 	devtool: "source-map",
 	entry: {
-		app: ["./src/App.js"]
+		app: ["./src/index.js"]
 	},
 	output: {
 		path: path.resolve(__dirname, "build"),

@@ -1,49 +1,36 @@
-'use strict';
+import React from 'react';
+import {QueryRenderer, graphql} from 'react-relay';
+
+import env from './env';
 
 import MomentList from './MomentList';
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-
-import {Button, Navbar} from 'reactstrap';
-
+import {Navbar} from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import './vendor/dashboard.css';
 
-import {QueryRenderer, graphql} from 'react-relay';
-import {
-	Environment,
-	Network,
-	RecordSource,
-	Store
-} from 'relay-runtime';
+const Header = () => (
+	<Navbar className="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
+		<a className="navbar-brand" href="#">Lidarr</a>
+	</Navbar>
+);
 
-const mountNode = document.getElementById('root');
+const Sidebar = () => (
+	<nav className="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
+		<ul className="nav nav-pills flex-column">
+			<li className="nav-item">
+				<a className="nav-link active" href="#">Overview <span className="sr-only">(current)</span></a>
+			</li>
+		</ul>
+	</nav>
+);
 
-function fetchQuery(operation, variables) {
-	return fetch('/graphql', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			query: operation.text,
-			variables
-		})
-	}).then(response => response.json());
-}
-
-const env = new Environment({
-	network: Network.create(fetchQuery),
-	store: new Store(new RecordSource())
-});
-
-ReactDOM.render(
+const IndexComponent = () => (
 	<QueryRenderer
 		environment={env}
 		query={graphql`
 			query AppQuery {
-				moments(limit:100) {
+				moments(limit:6) {
 					...MomentList
 				}
 			}
@@ -51,36 +38,30 @@ ReactDOM.render(
 		variables={{}}
 		render={({error, props}) => {
 			if (error) {
-				console.error('error', error);
+				console.error("IndexComponent error", error);
 				return <div>Error</div>;
 			} else if (props) {
 				return <div>
-					<Navbar className="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
-						<a className="navbar-brand" href="#">Lidarr</a>
-					</Navbar>
-
-					<div className="container-fluid">
-						<div className="row">
-							<nav className="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
-								<ul className="nav nav-pills flex-column">
-									<li className="nav-item">
-										<a className="nav-link active" href="#">Overview <span className="sr-only">(current)</span></a>
-									</li>
-								</ul>
-							</nav>
-
-							<main className="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
-								<h1>Dashboard</h1>
-
-								<MomentList data={props.moments}></MomentList>
-							</main>
-						</div>
-					</div>
+					<div>Index Component</div>
+					<MomentList data={props.moments} />
 				</div>;
 			} else {
 				return <div>Loading</div>;
 			}
 		}}
-  	/>,
-	mountNode
+	/>
+);
+
+export default () => (
+	<div>
+		<Header />
+		<div className="container-fluid">
+			<Sidebar />
+			<div className="row">
+				<main className="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
+					<IndexComponent />
+				</main>
+			</div>
+		</div>
+	</div>
 );
