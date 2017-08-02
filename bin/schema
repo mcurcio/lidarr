@@ -4,7 +4,7 @@
 
 const sequelize = require('../lib/db');
 const {graphql} = require('graphql');
-const {introspectionQuery} = require('graphql/utilities');
+const {introspectionQuery, buildClientSchema, printSchema} = require('graphql/utilities');
 const tmp = require('tmp');
 const util = require('util');
 const Environment = require('../lib/env');
@@ -24,6 +24,10 @@ module.exports = async () => {
 if (require.main === module) {
 	(async () => {
 		const schema = await module.exports();
-		console.log(JSON.stringify(schema));
+		if (process.argv[2] == "--pretty") {
+			console.log(printSchema(buildClientSchema(schema.data)));
+		} else {
+			console.log(JSON.stringify(schema));
+		}
 	})();
 }
