@@ -2,6 +2,7 @@
 
 import React from 'react';
 import {createFragmentContainer, graphql} from 'react-relay';
+import {Pagination, PaginationItem, PaginationLink} from 'reactstrap';
 
 class MomentWidget extends React.Component {
 	render() {
@@ -11,6 +12,7 @@ class MomentWidget extends React.Component {
 		if (moment.lead.thumbnail) {
 			image = moment.lead.thumbnail.url
 		}
+		console.log(moment);
 
 		return <div style={{
 			backgroundImage: `url(${image})`,
@@ -19,7 +21,14 @@ class MomentWidget extends React.Component {
 			backgroundSize: 'cover',
 			width: '100%',
 			paddingBottom: '100%'
-		}}></div>;
+		}}>
+			<div style={{
+				position: "absolute",
+				width: "10%",
+				height: "10%",
+				background: "yellow"
+			}}>{moment.photos.edges.length}</div>
+		</div>;
 	}
 };
 
@@ -31,13 +40,27 @@ MomentWidget = createFragmentContainer(MomentWidget, graphql`
 				url
 			}
 		}
+		photos {
+			edges {
+				node {
+					url
+				}
+			}
+		}
 	}
 `);
 
 
 class MomentList extends React.Component {
+	setPage(page) {
+		console.log('MomentList#setPage', page);
+
+		this.props.setPage(page);
+	}
+
 	render() {
-		const moments = this.props.data;
+		console.log('MomentList', this.props);
+		const moments = this.props.data.moments.edges.map(n => n.node);
 
 		let rows = [];
 		let size = 4;
@@ -65,13 +88,57 @@ class MomentList extends React.Component {
 			dom.push(<div key={i} className="row">{r}</div>);
 		}
 
-		return <div>{dom}</div>;
+		return <div>
+			<Pagination>
+			        <PaginationItem>
+			          <PaginationLink previous href="#" />
+			        </PaginationItem>
+			        <PaginationItem>
+			          <PaginationLink href="#" onClick={() => this.props.setPage(0)}>
+			            1
+			          </PaginationLink>
+			        </PaginationItem>
+			        <PaginationItem>
+			          <PaginationLink href="#" onClick={() => this.props.setPage(1)}>
+			            2
+			          </PaginationLink>
+			        </PaginationItem>
+			        <PaginationItem>
+			          <PaginationLink href="#">
+			            3
+			          </PaginationLink>
+			        </PaginationItem>
+			        <PaginationItem>
+			          <PaginationLink href="#">
+			            4
+			          </PaginationLink>
+			        </PaginationItem>
+			        <PaginationItem>
+			          <PaginationLink href="#">
+			            5
+			          </PaginationLink>
+			        </PaginationItem>
+			        <PaginationItem>
+			          <PaginationLink next href="#" />
+			        </PaginationItem>
+			      </Pagination>
+			{dom}
+		</div>;
 	}
 };
 
 export default createFragmentContainer(MomentList, graphql`
-	fragment MomentList on Moment @relay(plural: true) {
-		id
-		...MomentListView
+	fragment MomentList on RootQueryType {
+		moments(limit:$size page:$page) {
+			totalPages
+			currentPage
+			edges {
+				node {
+					id
+					...MomentListView
+				}
+			}
+		}
+
 	}
 `);

@@ -1,5 +1,5 @@
 import React from 'react';
-import {QueryRenderer, graphql} from 'react-relay';
+import {QueryRenderer, createRefetchContainer, graphql} from 'react-relay';
 
 import env from './env';
 
@@ -24,33 +24,90 @@ const Sidebar = () => (
 		</ul>
 	</nav>
 );
+/*
+class AllMoments extends React.Component {
+  render() {
+	  console.log('AllMoments', this.props);
+    return (
+      <div>
+        AllMoments
+	</div>
+    );
+  }
 
-const IndexComponent = () => (
-	<QueryRenderer
-		environment={env}
-		query={graphql`
-			query AppQuery {
-				moments(limit:6) {
+  _loadMore() {
+    // Increments the number of stories being rendered by 10.
+    const refetchVariables = fragmentVariables => ({
+      count: fragmentVariables.count + 10,
+    });
+    this.props.relay.refetch(refetchVariables, null);
+  }
+}
+
+module.exports = createRefetchContainer(
+  AllMoments,
+	{
+		moments: graphql.experimental`
+			fragment App_moments on RootQueryType @argumentDefinitions(
+				count: {type: "Int", defaultValue: 10}
+			) {
+				moments(first: $count) {}
+			}
+		`
+	},
+  graphql.experimental`
+    query App_Query($count: Int) {
+        ...App_moments @arguments(count: $count)
+    }
+  `,
+);
+*/
+class IndexComponent extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			page: 0,
+			size: 6
+		};
+	}
+
+	setPage(page) {
+		console.log('IndexComponent#setPage', ":" + page + ":");
+		this.setState({
+			page
+		});
+	}
+
+	render() {
+		return <QueryRenderer
+			environment={env}
+			query={graphql`
+				query AppQuery($page: Int, size: Int) {
 					...MomentList
 				}
-			}
-		`}
-		variables={{}}
-		render={({error, props}) => {
-			if (error) {
-				console.error("IndexComponent error", error);
-				return <div>Error</div>;
-			} else if (props) {
-				return <div>
-					<div>Index Component</div>
-					<MomentList data={props.moments} />
-				</div>;
-			} else {
-				return <div>Loading</div>;
-			}
-		}}
-	/>
-);
+			`}
+			variables={{
+				page: this.state.page,
+				size: this.state.size
+			}}
+			render={({error, props}) => {
+				if (error) {
+					console.error("IndexComponent error", error);
+					return <div>Error</div>;
+				} else if (props) {
+					console.log('props', props);
+					return <div>
+						<div>Index Component</div>
+						<MomentList data={props} page={this.state.page} setPage={this.setPage.bind(this)} />
+					</div>;
+				} else {
+					return <div>Loading</div>;
+				}
+			}}
+		/>
+	}
+};
 
 export default () => (
 	<div>
