@@ -1,9 +1,11 @@
 import React from 'react';
-import {QueryRenderer, createRefetchContainer, graphql} from 'react-relay';
+import {QueryRenderer, createPaginationContainer, createRefetchContainer, graphql} from 'react-relay';
 
 import env from './env';
 
 import MomentList from './MomentList';
+
+//import ReactList from 'react-list';
 
 import {Navbar} from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -61,7 +63,7 @@ module.exports = createRefetchContainer(
     }
   `,
 );
-*/
+
 class IndexComponent extends React.Component {
 	constructor(props) {
 		super(props);
@@ -108,7 +110,47 @@ class IndexComponent extends React.Component {
 		/>
 	}
 };
+*/
+/*
+ * pagination
+class MomentList2 extends React.Component {
+	constructor(props) {
+		super(props);
 
+		this.renderItem = this.renderItem.bind(this);
+	}
+
+	renderItem(key, index) {
+		console.log('MomentList2#renderItem', key, index, this.props);
+	}
+
+	render() {
+		console.log('MomentList2#render', this.props);
+
+		return <ul>
+			<ReactList itemRenderer={this.renderItem} length={3} />
+		</ul>;
+	}
+};
+MomentList2 = Relay.createContainer(MomentList2, {
+	initialVariables: {
+		pageSize: pageSize
+	},
+	fragments: {
+		moments: () => graphql`
+			fragment on RootQueryType {
+				moments(first: $pageSize) {
+					edges {
+						node {
+							id
+						}
+					}
+				}
+			}
+		`
+	}
+});
+*/
 export default () => (
 	<div>
 		<Header />
