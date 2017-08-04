@@ -60,7 +60,8 @@ class MomentList extends React.Component {
 
 	render() {
 		console.log('MomentList', this.props);
-		const moments = this.props.data.moments.edges.map(n => n.node);
+		const moments = this.props.moments.moments.edges.map(n => n.node);
+		console.log('moments!!!', moments);
 
 		let rows = [];
 		let size = 4;
@@ -89,56 +90,14 @@ class MomentList extends React.Component {
 		}
 
 		return <div>
-			<Pagination>
-			        <PaginationItem>
-			          <PaginationLink previous href="#" />
-			        </PaginationItem>
-			        <PaginationItem>
-			          <PaginationLink href="#" onClick={() => this.props.setPage(0)}>
-			            1
-			          </PaginationLink>
-			        </PaginationItem>
-			        <PaginationItem>
-			          <PaginationLink href="#" onClick={() => this.props.setPage(1)}>
-			            2
-			          </PaginationLink>
-			        </PaginationItem>
-			        <PaginationItem>
-			          <PaginationLink href="#">
-			            3
-			          </PaginationLink>
-			        </PaginationItem>
-			        <PaginationItem>
-			          <PaginationLink href="#">
-			            4
-			          </PaginationLink>
-			        </PaginationItem>
-			        <PaginationItem>
-			          <PaginationLink href="#">
-			            5
-			          </PaginationLink>
-			        </PaginationItem>
-			        <PaginationItem>
-			          <PaginationLink next href="#" />
-			        </PaginationItem>
-			      </Pagination>
 			{dom}
 		</div>;
 	}
 };
 
 export default createFragmentContainer(MomentList, graphql`
-	fragment MomentList on RootQueryType {
-		moments(limit:$size page:$page) {
-			totalPages
-			currentPage
-			edges {
-				node {
-					id
-					...MomentListView
-				}
-			}
-		}
-
+	fragment MomentList on Moment {
+		id
+		...MomentListView
 	}
 `);
