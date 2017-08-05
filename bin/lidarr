@@ -36,6 +36,16 @@ const path = require('path');
 	if (env.config.paths.library) {
 		let tasks = () => {
 			(async () => {
+				env.logger.info("Generating thumbnails");
+				task = new lidarr.task.ThumbnailTask(env);
+				await task.run();
+				task = null;
+				env.logger.info("Done generating thumbnails");
+
+				if (exiting) {
+					return;
+				}
+
 				env.logger.info("Syncing library");
 				const organize = env.config.get('organize');
 				task = new lidarr.task.SyncTask(env.config.paths.library, env, { organize });
@@ -43,18 +53,8 @@ const path = require('path');
 				task = null;
 				env.logger.info("Done syncing library");
 
-				if (exiting) {
-					return;
-				}
-
-				env.logger.info("Generating thumbnails");
-				task = new lidarr.task.ThumbnailTask(env);
-				await task.run();
-				task = null;
-				env.logger.info("Done generating thumbnails");
-
 				if (!exiting) {
-					handle = setTimeout(tasks, 60000);
+					handle = setTimeout(tasks, 10 * 60 * 1000);
 				}
 			})();
 		};
