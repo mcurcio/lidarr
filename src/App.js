@@ -5,7 +5,7 @@ import env from './env';
 
 //import MomentList from './MomentList';
 
-//import ReactList from 'react-list';
+import ReactList from 'react-list';
 
 import {Button, Navbar} from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -200,10 +200,76 @@ MomentWidget = createFragmentContainer(MomentWidget, graphql`
 `);
 */
 class MomentList3 extends React.Component {
+	renderItem(index, key) {
+		const moments = this.props.moments.moments.edges;
+		const length = moments.length;
+		const rows = length / 4;
+
+		console.log('renderItem', key, index, this.props, length);
+
+		if (index >= rows - 2) {
+			this._loadMore();
+		}
+
+		// FIXME: this will fail on "incomplete" rows (when there are less than 4 photos)
+		if (index < rows) {
+			return <div key={key} className="row">
+				{(Array.apply(true, Array(4))).map((v, i) => (
+					<div key={i} className="col-sm" style={{paddingBottom: '30px'}}>
+						<MomentWidget key={key} data={moments[(index * 4) + i].node} />
+					</div>
+				))}
+			</div>
+
+			//const m = this.props.moments.moments.edges[index].node;
+			//console.log('moment', m);
+			//return <MomentWidget key={key} data={m} keym={key} index={index} />
+		}
+
+		return <div />;
+	}
+/*
+	renderItems(items, ref) {
+		console.log('renderItems', items, ref);
+
+		let rows = [];
+		while (items.length > 0) {
+			rows.push(items.splice(0, 4));
+		}
+		//console.log('rows', rows);
+
+		const result = <div ref={ref}>
+			{rows.map((row, rIndex, array) => <div className="row" key={rIndex}>
+				{([1,2,3,4]).map((value, cIndex) => {
+					//console.log('array', cIndex);
+					return <div key={cIndex} className="col-sm" style={{paddingBottom: '30px'}}>
+						{row[cIndex] || <div />}
+					</div>
+				})}
+			</div>)}
+		</div>;
+		//console.log('result', result);
+		return result;
+	}
+*/
 	render() {
 		console.log('MomentList3#render', this.props);
 		const moments = this.props.moments.moments.edges.map(n => n.node);
 		console.log('moments', moments);
+
+		return <ReactList
+			itemRenderer={this.renderItem.bind(this)}
+			length={Math.ceil(moments.length/4)}
+			minSize={4}
+			type='uniform'
+		/>;
+//			{/*}temsRenderer={this.renderItems.bind(this)}*/}
+
+		return <div>
+			{moments.map((m, index) => <div key={m.id} className="col" style={{marginBottom: '30px', maxWidth: '25%'}}>
+				<MomentWidget data={m} />
+			</div>)}
+		</div>;
 
 		let rows = [];
 		let size = 4;
@@ -214,7 +280,7 @@ class MomentList3 extends React.Component {
 
 		return <div>
 			{rows.map((row, index) => <div key={index} className="row">
-				{row.map(m => <div key={m.id} className="col-sm" style={{marginBottom: '30px'}}>
+				{row.map(m => <div key={m.id} className="col-sm" style={{paddingBottom: '30px'}}>
 					<MomentWidget data={m} />
 				</div>)}
 			</div>)}
@@ -245,9 +311,9 @@ class MomentList3 extends React.Component {
 
 		console.log('loading');
 		this.props.relay.loadMore(
-			4, // Fetch the next 10 feed items
+			4 * 4, // Fetch the next 10 feed items
 			e => {
-				console.log(e);
+				if (e) { console.error('error loading', e); }
 			},
 		);
 	}
@@ -330,7 +396,7 @@ MomentList3 = createPaginationContainer(MomentList3, {
 	query
 });
 const IndexComponent = () => <QueryRenderer environment={env}
-variables={{count: 4, cursor: null}}
+variables={{count: 4 * 4, cursor: null}}
 query={query}
 render={({error, props}) => {
 	if (error) {
