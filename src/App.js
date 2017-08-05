@@ -6,6 +6,8 @@ import env from './env';
 //import MomentList from './MomentList';
 
 import ReactList from 'react-list';
+import Lightbox from 'react-images';
+console.log('Lightbox', Lightbox);
 
 import {Button, Navbar} from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -26,157 +28,102 @@ const Sidebar = () => (
 		</ul>
 	</nav>
 );
-/*
-class AllMoments extends React.Component {
-  render() {
-	  console.log('AllMoments', this.props);
-	return (
-	  <div>
-		AllMoments
-	</div>
-	);
-  }
 
-  _loadMore() {
-	// Increments the number of stories being rendered by 10.
-	const refetchVariables = fragmentVariables => ({
-	  count: fragmentVariables.count + 10,
-	});
-	this.props.relay.refetch(refetchVariables, null);
-  }
-}
-
-module.exports = createRefetchContainer(
-  AllMoments,
-	{
-		moments: graphql.experimental`
-			fragment App_moments on RootQueryType @argumentDefinitions(
-				count: {type: "Int", defaultValue: 10}
-			) {
-				moments(first: $count) {}
-			}
-		`
-	},
-  graphql.experimental`
-	query App_Query($count: Int) {
-		...App_moments @arguments(count: $count)
-	}
-  `,
-);
-
-class IndexComponent extends React.Component {
+class MomentWidget extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			page: 0,
-			size: 6
+			lightboxOpen: false,
+			lightboxIndex: 0
 		};
 	}
 
-	setPage(page) {
-		console.log('IndexComponent#setPage', ":" + page + ":");
+	goToPrevious() {
+		this.setState((state) => ({
+			lightboxIndex: state.lightboxIndex - 1,
+		}));
+	}
+
+	goToNext() {
+		this.setState((state) => ({
+			lightboxIndex: state.lightboxIndex + 1,
+		}));
+	}
+
+	goToImage(index) {
 		this.setState({
-			page
+			lightboxIndex: index,
 		});
 	}
 
-	render() {
-		return <QueryRenderer
-			environment={env}
-			query={graphql`
-				query AppQuery($page: Int, size: Int) {
-					...MomentList
-				}
-			`}
-			variables={{
-				page: this.state.page,
-				size: this.state.size
-			}}
-			render={({error, props}) => {
-				if (error) {
-					console.error("IndexComponent error", error);
-					return <div>Error</div>;
-				} else if (props) {
-					console.log('props', props);
-					return <div>
-						<div>Index Component</div>
-						<MomentList data={props} page={this.state.page} setPage={this.setPage.bind(this)} />
-					</div>;
-				} else {
-					return <div>Loading</div>;
-				}
-			}}
-		/>
-	}
-};
-*/
-/*
- * pagination
-class MomentList2 extends React.Component {
-	constructor(props) {
-		super(props);
-
-		this.renderItem = this.renderItem.bind(this);
+	handleClickImage() {
+		this.setState((state) => ({
+			lightboxIndex: Math.min(state.lightboxIndex + 1, this.props.data.photos.edges.length),
+		}));
 	}
 
-	renderItem(key, index) {
-		console.log('MomentList2#renderItem', key, index, this.props);
-	}
-
-	render() {
-		console.log('MomentList2#render', this.props);
-
-		return <ul>
-			<ReactList itemRenderer={this.renderItem} length={3} />
-		</ul>;
-	}
-};
-MomentList2 = Relay.createContainer(MomentList2, {
-	initialVariables: {
-		pageSize: pageSize
-	},
-	fragments: {
-		moments: () => graphql`
-			fragment on RootQueryType {
-				moments(first: $pageSize) {
-					edges {
-						node {
-							id
-						}
-					}
-				}
-			}
-		`
-	}
-});
-*/
-
-class MomentWidget extends React.Component {
 	render() {
 		const moment = this.props.data;
 		console.log('MomentWidget', moment);
 
+		const lead = moment.lead;
 		let image = "";
-		if (moment.lead.thumbnail) {
-			image = moment.lead.thumbnail.url
+		if (lead.thumbnail) {
+			image = lead.thumbnail.url
 		}
-		console.log(moment);
+//		console.log('Moment', moment);
+//console.log('lead', lead);
+		let others = null;
+		if (moment.photos.edges.length > 1) {
+			others = moment.photos.edges
+				.slice(0, 3)
+				.map(n => n.node)
+				.filter(p => p.id !== lead.id)
+				.slice(0, 2)
+				.map((p, i) => <div key={i+1} style={{
+					backgroundImage: `url(${p.url})`,
+					backgroundPosition: 'center center',
+					backgroundRepeat: 'no-repeat',
+					backgroundSize: 'cover',
+					width: '90%',
+					transform: `rotateZ(${i==1 ? "5": "-5"}deg)`,
+					paddingBottom: '90%',
+					position: "absolute",
+					"top": 0,
+					"zIndex": 0
+				}} />);
+			//console.log('others', others);
+		}
 
-		return <div style={{
+		return <div onClick={() => this.setState({lightboxOpen: true})}>
+			{others}
+		<div key={0} style={{
 			backgroundImage: `url(${image})`,
 			backgroundPosition: 'center center',
 			backgroundRepeat: 'no-repeat',
 			backgroundSize: 'cover',
 			width: '100%',
-			paddingBottom: '100%'
+			paddingBottom: '100%',
+			"zIndex": 1,
+			position: "relative"
 		}}>
-			<div style={{
-				position: "absolute",
-				width: "10%",
-				height: "10%",
-				background: "yellow"
-			}}>{moment.photos.edges.length}</div>
+			<Lightbox
+				enableKeyboardInput={true}
+				backdropClosesModal={true}
+				showThumbnails={true}
+				onClose={() => this.setState({lightboxOpen: false})}
+				onClickNext={this.goToNext.bind(this)}
+				onClickPrev={this.goToPrevious.bind(this)}
+				onClickImage={this.handleClickImage.bind(this)}
+				onClickThumbnail={this.goToImage.bind(this)}
+				currentImage={this.state.lightboxIndex}
+				isOpen={this.state.lightboxOpen}
+				images={moment.photos.edges.map(p => ({
+					src: p.node.url,
+					srcset: p.node.thumbnails.edges.map(t => `${t.node.url} ${t.node.width}w`),
+				}))} />
+		</div>
 		</div>;
 	}
 };
@@ -220,42 +167,15 @@ class MomentList3 extends React.Component {
 					</div>
 				))}
 			</div>
-
-			//const m = this.props.moments.moments.edges[index].node;
-			//console.log('moment', m);
-			//return <MomentWidget key={key} data={m} keym={key} index={index} />
 		}
 
 		return <div />;
 	}
-/*
-	renderItems(items, ref) {
-		console.log('renderItems', items, ref);
 
-		let rows = [];
-		while (items.length > 0) {
-			rows.push(items.splice(0, 4));
-		}
-		//console.log('rows', rows);
-
-		const result = <div ref={ref}>
-			{rows.map((row, rIndex, array) => <div className="row" key={rIndex}>
-				{([1,2,3,4]).map((value, cIndex) => {
-					//console.log('array', cIndex);
-					return <div key={cIndex} className="col-sm" style={{paddingBottom: '30px'}}>
-						{row[cIndex] || <div />}
-					</div>
-				})}
-			</div>)}
-		</div>;
-		//console.log('result', result);
-		return result;
-	}
-*/
 	render() {
-		console.log('MomentList3#render', this.props);
+		//console.log('MomentList3#render', this.props);
 		const moments = this.props.moments.moments.edges.map(n => n.node);
-		console.log('moments', moments);
+		//console.log('moments', moments);
 
 		return <ReactList
 			itemRenderer={this.renderItem.bind(this)}
@@ -263,53 +183,16 @@ class MomentList3 extends React.Component {
 			minSize={4}
 			type='uniform'
 		/>;
-//			{/*}temsRenderer={this.renderItems.bind(this)}*/}
-
-		return <div>
-			{moments.map((m, index) => <div key={m.id} className="col" style={{marginBottom: '30px', maxWidth: '25%'}}>
-				<MomentWidget data={m} />
-			</div>)}
-		</div>;
-
-		let rows = [];
-		let size = 4;
-
-		while (moments.length > 0)
-			rows.push(moments.splice(0, size));
-		console.log('rows', rows);
-
-		return <div>
-			{rows.map((row, index) => <div key={index} className="row">
-				{row.map(m => <div key={m.id} className="col-sm" style={{paddingBottom: '30px'}}>
-					<MomentWidget data={m} />
-				</div>)}
-			</div>)}
-
-			{this.props.relay.hasMore() ? <Button onClick={() => this._loadMore()} color="primary" size="lg" block>Load more</Button> : ""}
-		</div>;
-		/*(
-			<div className="row">
-				{moments.map(m => (<div key={m.id} className="col-sm" style={{marginBottom: '30px'}}>
-					<MomentWidget data={m} />
-				</div>))}
-				<Button onClick={() => this._loadMore()}>Load more</Button>
-				<a
-					href="#"
-					onClick={() => this._loadMore()}
-					title="Load More"
-				>Load more</a>
-			</div>
-		);*/
 	}
 
 	_loadMore() {
-		console.log('load more', this.props.relay.hasMore(), this.props.relay.isLoading());
+		//console.log('load more', this.props.relay.hasMore(), this.props.relay.isLoading());
 		if (!this.props.relay.hasMore() || this.props.relay.isLoading()) {
-			console.log('not loading more');
+			//console.log('not loading more');
 			return;
 		}
 
-		console.log('loading');
+		//console.log('loading');
 		this.props.relay.loadMore(
 			4 * 4, // Fetch the next 10 feed items
 			e => {
@@ -345,6 +228,7 @@ MomentList3 = createPaginationContainer(MomentList3, {
 					node {
 						id
 						lead {
+							id
 							thumbnail {
 								url
 							}
@@ -352,7 +236,17 @@ MomentList3 = createPaginationContainer(MomentList3, {
 						photos {
 							edges {
 								node {
+									id
 									url
+									thumbnails {
+										edges {
+											node {
+												size
+												url
+												width
+											}
+										}
+									}
 								}
 							}
 						}
