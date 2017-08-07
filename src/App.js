@@ -19,15 +19,18 @@ const Header = () => (
 	</Navbar>
 );
 
-const Sidebar = () => (
-	<nav className="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
+const Sidebar = (props) => {
+	return <nav className="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
 		<ul className="nav nav-pills flex-column">
-			<li className="nav-item">
-				<a className="nav-link active" href="#">Overview <span className="sr-only">(current)</span></a>
-			</li>
+			{props.pages.map(page => <li key={page.slug} className="nav-item">
+				{console.log('page', page, props.page, page===props.page)}
+				<a className={`nav-link ${page===props.page ? 'active' : ''}`} href={page.slug} onClick={e => props.setPage(page, e)}>{page.name}
+					<span className="sr-only">(current)</span>
+				</a>
+			</li>)}
 		</ul>
 	</nav>
-);
+};
 
 class MomentWidget extends React.Component {
 	constructor(props) {
@@ -122,6 +125,7 @@ class MomentWidget extends React.Component {
 				images={moment.photos.edges.map(p => ({
 					src: p.node.url,
 					srcset: p.node.thumbnails.edges.map(t => `${t.node.url} ${t.node.width}w`),
+					caption: `${p.node.takenAt}`
 				}))} />
 		</div>
 		</div>;
@@ -221,7 +225,7 @@ MomentList3 = createPaginationContainer(MomentList3, {
 			moments(
 				first: $count
 				after: $cursor
-				#orderBy: $orderBy # other variables
+				#orderBy: TAKEN # other variables
 			) @connection(key: "MomentList3_moments") {
 				edges {
 					cursor
@@ -238,6 +242,7 @@ MomentList3 = createPaginationContainer(MomentList3, {
 								node {
 									id
 									url
+									takenAt
 									thumbnails {
 										edges {
 											node {
@@ -297,19 +302,47 @@ render={({error, props}) => {
 		return <div>{error.message}</div>;
 	} else if (props) {
 		console.log('IndexComponent#render', props);
-		return <MomentList3 data={props} moments={props.viewer} />;
+		return <div>
+			<MomentList3 data={props} moments={props.viewer} />
+		</div>;
 	}
 	return <div>Loading</div>;
 }} />;
 
-export default () => (
-	<div>
-		<Header />
-		<div className="container-fluid">
-			<Sidebar />
-			<main className="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
-				<IndexComponent />
-			</main>
+export default class App extends React.Component {
+	static PAGES = [
+		{name: 'Recently Taken', slug: 'recently-taken'},
+		{name: 'Recently Added', slug: 'recently-added'}
+	];
+
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			page: App.PAGES[0]
+		};
+	}
+
+	setPage(page, e) {
+		e.preventDefault();
+
+		console.log('setPage', page);
+		if (App.PAGES.includes(page)) {
+			this.setState({
+				page
+			});
+		}
+	}
+
+	render() {
+		return <div>
+			<Header />
+			<div className="container-fluid">
+				<Sidebar pages={App.PAGES} page={this.state.page} setPage={this.setPage.bind(this)} />
+				<main className="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
+					<IndexComponent />
+				</main>
+			</div>
 		</div>
-	</div>
-);
+	}
+};
