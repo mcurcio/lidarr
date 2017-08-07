@@ -27,7 +27,7 @@ class MomentWidget extends React.Component {
 				width: "10%",
 				height: "10%",
 				background: "yellow"
-			}}>{moment.photos.edges.length}</div>
+			}}>{moment.assets.edges.length}</div>
 		</div>;
 	}
 };
@@ -40,7 +40,7 @@ MomentWidget = createFragmentContainer(MomentWidget, graphql`
 				url
 			}
 		}
-		photos {
+		assets {
 			edges {
 				node {
 					url

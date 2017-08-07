@@ -176,7 +176,7 @@ class MomentWidget extends React.Component {
 				width: "10%",
 				height: "10%",
 				background: "yellow"
-			}}>{moment.photos.edges.length}</div>
+			}}>{moment.assets.edges.length}</div>
 		</div>;
 	}
 };
@@ -283,7 +283,7 @@ MomentList3 = createPaginationContainer(MomentList3, {
 								url
 							}
 						}
-						photos {
+						assets {
 							edges {
 								node {
 									url

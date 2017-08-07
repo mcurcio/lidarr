@@ -8,7 +8,7 @@ const path = require('path');
 
 describe('thumbnail', async () => {
 	beforeEach(async function() {
-		this.tenv = await TestEnvironment.create();
+		this.tenv = await TestEnvironment.create({console:true});
 	});
 
 	afterEach(async function() {
@@ -29,7 +29,7 @@ describe('thumbnail', async () => {
 		let files = [];
 		fsp.traverseTreeSync(tenv.config.paths.thumbs, file => files.push(file), dir => true);
 
-		let photoCount = await tenv.db.Photo.count();
-		assert.strictEqual(files.length, photoCount * tenv.db.Thumbnail.sizes.length);
+		let assetCount = await tenv.db.Asset.count();
+		assert.strictEqual(files.length, assetCount * tenv.db.Thumbnail.sizes.length);
 	});
 });
