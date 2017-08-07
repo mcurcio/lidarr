@@ -32,6 +32,7 @@
     "fs-extra": "^3.0.1",
     "fs-plus": "^3.0.1",
     "graphql": "^0.9.6",
+    "graphql-iso-date": "^3.2.0",
     "graphql-relay": "^0.5.2",
     "graphql-sequelize": "^5.4.2",
     "image-size": "^0.5.5",
