@@ -10,7 +10,7 @@ describe('sync', () => {
 		const tenvs = [];
 
 		beforeEach(async function () {
-			this.tenv = await TestEnvironment.create();
+			this.tenv = await TestEnvironment.create();//{console: true, data:"./test_env"});
 		});
 
 		afterEach(async function () {
@@ -34,15 +34,15 @@ describe('sync', () => {
 				tenv.db.Moment.count()
 			]);
 			assert.strictEqual(assetCount, 17);
-			assert.strictEqual(instanceCount, 17);
+			assert.strictEqual(instanceCount, 18);
 			assert.strictEqual(momentCount, 10);
 
 			let instances = await tenv.db.Instance.all();
-			await instances.map((async (i) => {
-				let p = path.join(tenv.config.paths.library, instance.path);
+			await instances.map(async (i) => {
+				let p = path.join(tenv.config.paths.library, i.path);
 				let exists = await fse.pathExists(p);
 				assert(exists);
-			})());
+			});
 		});
 
 		it('should match existing files', async function () {
@@ -59,7 +59,7 @@ describe('sync', () => {
 			]);
 
 			assert.strictEqual(assetCount, 17);
-			assert.strictEqual(instanceCount, 17);
+			assert.strictEqual(instanceCount, 18);
 		});
 
 		it('should support cancellation', async function () {
