@@ -79,7 +79,7 @@ class MomentWidget extends React.Component {
 //console.log('lead', lead);
 		let others = null;
 		if (moment.photos.edges.length > 1) {
-			others = moment.photos.edges
+			others = moment.assets.edges
 				.slice(0, 3)
 				.map(n => n.node)
 				.filter(p => p.id !== lead.id)
@@ -122,10 +122,10 @@ class MomentWidget extends React.Component {
 				onClickThumbnail={this.goToImage.bind(this)}
 				currentImage={this.state.lightboxIndex}
 				isOpen={this.state.lightboxOpen}
-				images={moment.photos.edges.map(p => ({
+				images={moment.assets.edges.map(p => ({
 					src: p.node.url,
 					srcset: p.node.thumbnails.edges.map(t => `${t.node.url} ${t.node.width}w`),
-					caption: `${p.node.takenAt}`
+					caption: `${p.node.bornAt}`
 				}))} />
 		</div>
 		</div>;
@@ -237,12 +237,12 @@ MomentList3 = createPaginationContainer(MomentList3, {
 								url
 							}
 						}
-						photos {
+						assets {
 							edges {
 								node {
 									id
 									url
-									takenAt
+									bornAt
 									thumbnails {
 										edges {
 											node {

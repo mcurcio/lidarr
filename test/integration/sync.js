@@ -10,7 +10,7 @@ describe('sync', () => {
 		const tenvs = [];
 
 		beforeEach(async function () {
-			this.tenv = await TestEnvironment.create();
+			this.tenv = await TestEnvironment.create();//{console: true, data:"./test_env"});
 		});
 
 		afterEach(async function () {
@@ -28,30 +28,21 @@ describe('sync', () => {
 
 			await (new SyncTask(tenv.config.paths.imports, tenv.env, {move: tenv.config.paths.library})).run();
 
-			let [photoCount, locationCount, relativeCount, momentCount] = await Promise.all([
-				tenv.db.Photo.count(),
-				tenv.db.Location.count(),
-				tenv.db.Relative.count(),
+			let [assetCount, instanceCount, momentCount] = await Promise.all([
+				tenv.db.Asset.count(),
+				tenv.db.Instance.count(),
 				tenv.db.Moment.count()
 			]);
-			assert.strictEqual(photoCount, 16);
-			assert.strictEqual(locationCount, 17);
-			assert.strictEqual(relativeCount, 1);
+			assert.strictEqual(assetCount, 17);
+			assert.strictEqual(instanceCount, 18);
 			assert.strictEqual(momentCount, 10);
 
-			let [locations, relatives] = await Promise.all([
-				tenv.db.Location.all(),
-				tenv.db.Relative.all()
-			]);
-			let promises = locations.map(async (location) => {
-				let p = path.join(tenv.config.paths.library, location.path);
-				assert(await fse.pathExists(p));
+			let instances = await tenv.db.Instance.all();
+			await instances.map(async (i) => {
+				let p = path.join(tenv.config.paths.library, i.path);
+				let exists = await fse.pathExists(p);
+				assert(exists);
 			});
-			promises.concat(relatives.map(async (relative) => {
-				let p = path.join(tenv.config.paths.library, relative.path);
-				assert(await fse.pathExists(p));
-			}));
-			await Promise.all(promises);
 		});
 
 		it('should match existing files', async function () {
@@ -62,15 +53,13 @@ describe('sync', () => {
 			await (new SyncTask(tenv.config.paths.imports, tenv.env)).run();
 			await (new SyncTask(tenv.config.paths.imports, tenv.env)).run();
 
-			let [photoCount, locationCount, relativeCount] = await Promise.all([
-				tenv.db.Photo.count(),
-				tenv.db.Location.count(),
-				tenv.db.Relative.count()
+			let [assetCount, instanceCount] = await Promise.all([
+				tenv.db.Asset.count(),
+				tenv.db.Instance.count(),
 			]);
 
-			assert.strictEqual(photoCount, 16);
-			assert.strictEqual(locationCount, 17);
-			assert.strictEqual(relativeCount, 1);
+			assert.strictEqual(assetCount, 17);
+			assert.strictEqual(instanceCount, 18);
 		});
 
 		it('should support cancellation', async function () {
@@ -83,8 +72,8 @@ describe('sync', () => {
 			task.start();
 			task.cancel();
 			await task.promise();
-			let photoCount = await tenv.db.Photo.count();
-			assert.strictEqual(photoCount, 0);
+			let assetCount = await tenv.db.Asset.count();
+			assert.strictEqual(assetCount, 0);
 		});
 	});
 });

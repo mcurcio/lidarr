@@ -12,7 +12,7 @@ const Environment = require('../lib/env');
 module.exports = async () => {
 		const dir = tmp.dirSync({ unsafeCleanup: true });
 
-		const config = {data: dir.name};
+		const config = {data: dir.name, console: false};
 		const env = await Environment.load({config});
 
 		const schema = require('../lib/graphql')(env);

@@ -1,5 +1,6 @@
 'use strict';
 
+const fsp = require('fs-plus');
 const path = require('path');
 
 const database = require(libPath('db'));
@@ -14,18 +15,17 @@ describe('database', () => {
 	it('requires migration', async () => {
 		let db = await database(path.join(tmpDir, 'db.sqlite'));
 		let pending = await db.migrator.pending();
-		assert.isAtLeast(pending.length, 2);
+
+		let files = [];
+		fsp.traverseTreeSync(libPath('models', 'migrations'), file => files.push(file), dir => true);
+
+		assert.isAtLeast(pending.length, files.length);
 	});
 
 	it('migrations succeed', async () => {
 		let db = await database(path.join(tmpDir, 'db.sqlite'));
 		await db.migrator.up();
 		assert.lengthOf(await db.migrator.pending(), 0);
-	});
-
-	it('test listenerd', async () => {
-		let db = await database(path.join(tmpDir, 'db.sqlite'));
-		await db.migrator.up();
 	});
 
 	it('works', async () => {
