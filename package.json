@@ -9,7 +9,7 @@
     "webpack": "webpack",
     "webpack-watch": "webpack --watch",
     "webpack-server": "webpack-dev-server --content-base build",
-    "relay-compiler": "relay-compiler --src src/ --schema ./schema.json",
+    "relay-compiler": "relay-compiler --src public/ --schema ./schema.json",
     "db": "bin/db"
   },
   "author": "",

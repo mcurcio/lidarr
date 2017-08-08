@@ -125,8 +125,11 @@ class MomentWidget extends React.Component {
 				images={moment.assets.edges.map(p => ({
 					src: p.node.url,
 					srcset: p.node.thumbnails.edges.map(t => `${t.node.url} ${t.node.width}w`),
-					caption: `${p.node.bornAt}`
-				}))} />
+					caption: <div>
+						{p.node.bornAt}
+						<span className="badge badge-info">{p.node.format}</span>
+					</div>
+			}))} />
 		</div>
 		</div>;
 	}
@@ -250,6 +253,10 @@ MomentList3 = createPaginationContainer(MomentList3, {
 								node {
 									id
 									url
+									type
+									format
+									width
+									height
 									bornAt
 									thumbnails {
 										edges {

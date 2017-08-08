@@ -12,7 +12,7 @@ class RelayCompilerPlugin {
 	apply(compiler) {
 		compiler.plugin('before-compile', (compiler, callback) => {
 				const r = path.join(path.resolve(__dirname), "node_modules", "relay-compiler", "bin", "relay-compiler");
-				childProcess.exec(`${r} --src src/ --schema ./schema.json`, callback);
+				childProcess.exec(`${r} --src public/ --schema ./schema.json`, callback);
 		});
 	}
 };
@@ -20,7 +20,7 @@ class RelayCompilerPlugin {
 module.exports = {
 	devtool: "source-map",
 	entry: {
-		app: ["./src/index.js"]
+		app: ["./public/index.js"]
 	},
 	output: {
 		path: path.resolve(__dirname, "build"),
