@@ -36,7 +36,7 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new ExtractTextPlugin("/assets/style.css"),
+		new ExtractTextPlugin("/css/style.css"),
 		new RelayCompilerPlugin(),
 //		new webpack.optimize.UglifyJsPlugin(),
 		new HtmlWebpackPlugin({

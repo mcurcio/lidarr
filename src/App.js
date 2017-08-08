@@ -62,7 +62,7 @@ class MomentWidget extends React.Component {
 
 	handleClickImage() {
 		this.setState((state) => ({
-			lightboxIndex: Math.min(state.lightboxIndex + 1, this.props.data.photos.edges.length),
+			lightboxIndex: Math.min(state.lightboxIndex + 1, this.props.data.assets.edges.length),
 		}));
 	}
 
@@ -78,7 +78,7 @@ class MomentWidget extends React.Component {
 //		console.log('Moment', moment);
 //console.log('lead', lead);
 		let others = null;
-		if (moment.photos.edges.length > 1) {
+		if (moment.assets.edges.length > 1) {
 			others = moment.assets.edges
 				.slice(0, 3)
 				.map(n => n.node)
@@ -153,8 +153,15 @@ MomentWidget = createFragmentContainer(MomentWidget, graphql`
 class MomentList3 extends React.Component {
 	renderItem(index, key) {
 		const moments = this.props.moments.moments.edges;
+
+		// available moments to render
 		const length = moments.length;
-		const rows = length / 4;
+
+		// rows to render
+		const rows = Math.floor(length / 4);
+
+		// based on the rows, how many items are requested?
+		const requested = rows * 4;
 
 		console.log('renderItem', key, index, this.props, length);
 
@@ -162,16 +169,17 @@ class MomentList3 extends React.Component {
 			this._loadMore();
 		}
 
-		// FIXME: this will fail on "incomplete" rows (when there are less than 4 photos)
-		if (index < rows) {
-			return <div key={key} className="row">
-				{(Array.apply(true, Array(4))).map((v, i) => (
-					<div key={i} className="col-sm" style={{paddingBottom: '30px'}}>
+		return <div key={key} className="row">
+			{(Array.apply(true, Array(4))).map((v, i) => {
+				let moment = moments[(index*4) + i];
+
+				return <div key={i} className="col-sm" style={{paddingBottom: '30px'}}>
+					{moment ?
 						<MomentWidget key={key} data={moments[(index * 4) + i].node} />
-					</div>
-				))}
-			</div>
-		}
+					:""}
+				</div>
+			})}
+		</div>
 
 		return <div />;
 	}
