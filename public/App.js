@@ -7,6 +7,7 @@ import env from './env';
 
 import ReactList from 'react-list';
 import Lightbox from 'react-images';
+import DateRangePicker from 'react-bootstrap-daterangepicker';
 console.log('Lightbox', Lightbox);
 
 import {Button, Navbar} from 'reactstrap';
@@ -318,6 +319,16 @@ render={({error, props}) => {
 	} else if (props) {
 		console.log('IndexComponent#render', props);
 		return <div>
+			<h3>Moments</h3>
+			<DateRangePicker>
+				<Button className="selected-date-range-btn" style={{width:'100%'}}>
+					<div className="pull-left">{/*<BS.Glyphicon glyph="calendar" />*/}</div>
+					<div className="pull-right">
+						<span>Date Range Label</span>
+						<span className="caret"></span>
+					</div>
+				</Button>
+			</DateRangePicker>
 			<MomentList3 data={props} moments={props.viewer} />
 		</div>;
 	}
@@ -326,8 +337,7 @@ render={({error, props}) => {
 
 export default class App extends React.Component {
 	static PAGES = [
-		{name: 'Recently Taken', slug: 'recently-taken'},
-		{name: 'Recently Added', slug: 'recently-added'}
+		{name: 'Moments', slug: 'moments'},
 	];
 
 	constructor(props) {

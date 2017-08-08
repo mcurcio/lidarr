@@ -18,7 +18,7 @@ class RelayCompilerPlugin {
 };
 
 module.exports = {
-	devtool: "source-map",
+	//devtool: "source-map",
 	entry: {
 		app: ["./public/index.js"]
 	},
