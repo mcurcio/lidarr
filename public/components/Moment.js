@@ -218,8 +218,8 @@ const query = graphql`
 	query MomentsQuery (
 		$count: Int!
 		$cursor: String
-		#$where: 
-		#$orderBy: String!
+		$start: DateTime
+		$end: DateTime
 	) {
 		viewer {
 			# You could reference the fragment defined previously.
@@ -234,8 +234,8 @@ MomentList3 = createPaginationContainer(MomentList3, {
 			moments(
 				first: $count
 				after: $cursor
-				where: $where
-				#orderBy: TAKEN # other variables
+				startedAfter: $start
+				endedBefore: $end
 			) @connection(key: "MomentList3_moments") {
 				edges {
 					cursor
@@ -271,7 +271,8 @@ MomentList3 = createPaginationContainer(MomentList3, {
 		let obj = {
 			count,
 			cursor,
-			where: fragmentVariables.where,
+			start: fragmentVariables.start,
+			end: fragmentVariables.end,
 			orderBy: fragmentVariables.orderBy,
 		};
 		console.log('getVariables', obj);
@@ -284,12 +285,14 @@ class IndexComponent extends React.Component {
 		super(props);
 
 		this.state = {
+			start: null,
+			end: null,
 			variables: {
 				count: 4 * 4,
 				cursor: null,
-				where: {start: {$le: momentjs({y:2015})}}
 			},
 			ranges: {
+				'All': [null, null],
 				'Today': [moment(), moment()],
 				'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
 				'Last 7 Days': [moment().subtract(6, 'days'), moment()],
@@ -301,35 +304,61 @@ class IndexComponent extends React.Component {
 		};
 	}
 
+	onEvent(e, picker) {
+		//console.log('onEvent', picker, e);
+		if (picker.chosenLabel.toLowerCase() === "all") {
+			this.setState({
+				start: null,
+				end: null
+			});
+		} else {
+			this.setState({
+				start: picker.startDate,
+				end: picker.endDate
+			});
+		}
+	}
+
 	renderResponse({error, props}) {
 		console.log('renderResponse', error, props);
+		let content = null;
+
 		if (error) {
-			return <div>{error.message}</div>;
+			content = <div>{error.message}</div>;
 		} else if (props) {
-			console.log('IndexComponent#render', props);
-			return <div>
-				<h3>Moments</h3>
-				<DateRangePicker ranges={this.state.ranges}>
-					<Button className="selected-date-range-btn" style={{width:'100%'}}>
-						<div className="pull-left">{/*<BS.Glyphicon glyph="calendar" />*/}</div>
-						<div className="pull-right">
-							<span>Date Range Label</span>
-							<span className="caret"></span>
-						</div>
-					</Button>
-				</DateRangePicker>
-				<MomentList3 data={props} moments={props.viewer} />
-			</div>;
+//			console.log('IndexComponent#render', props);
+
+			content = <MomentList3 data={props} moments={props.viewer} />
+		} else {
+			content = <div>Loading</div>;
 		}
 
-		return <div>Loading</div>;
+		return <div>
+			<h1>Moments
+			<DateRangePicker startDate={this.state.start} endDate={this.state.end} onEvent={this.onEvent.bind(this)} ranges={this.state.ranges}>
+				<Button className="selected-date-range-btn">
+					<div className="pull-left">{/*<BS.Glyphicon glyph="calendar" />*/}</div>
+					<div className="pull-right">
+						<span>Date Range Label</span>
+						<span className="caret"></span>
+					</div>
+				</Button>
+			</DateRangePicker>
+			</h1>
+
+			{content}
+		</div>;
 	}
 
 	render() {
-		console.log('render QueryRenderer');
+		console.log('render QueryRenderer', this.state);
 		return <QueryRenderer
 			environment={env}
-			variables={this.state.variables}
+			variables={{
+				...this.state.variables,
+				start: this.state.start,
+				end: this.state.end
+			}}
 			query={query}
 			render={this.renderResponse.bind(this)}
 		/>;
