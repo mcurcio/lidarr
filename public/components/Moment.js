@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import {QueryRenderer, createPaginationContainer, graphql} from 'react-relay';
+import {QueryRenderer, createFragmentContainer, createPaginationContainer, graphql} from 'react-relay';
 
 import env from '../env';
 
@@ -10,10 +10,8 @@ import ReactList from 'react-list';
 import Lightbox from 'react-images';
 import DateRangePicker from 'react-bootstrap-daterangepicker';
 import moment from 'moment';
-console.log('Lightbox', Lightbox);
 
 import '../vendor/daterangepicker.css'
-
 
 class MomentWidget extends React.Component {
 	constructor(props) {
@@ -50,8 +48,8 @@ class MomentWidget extends React.Component {
 	}
 
 	render() {
-		const moment = this.props.data;
-		console.log('MomentWidget', moment);
+		const moment = this.props.moment;
+		console.log('MomentWidget', this.props, moment);
 
 		const lead = moment.lead;
 		let image = "";
@@ -117,25 +115,41 @@ class MomentWidget extends React.Component {
 		</div>;
 	}
 };
-/*
+
 MomentWidget = createFragmentContainer(MomentWidget, graphql`
-	fragment MomentListView on Moment {
+	fragment Moment_moment on Moment {
 		id
 		lead {
+			id
 			thumbnail {
 				url
 			}
 		}
-		photos {
+		assets {
 			edges {
 				node {
+					id
 					url
+					type
+					format
+					width
+					height
+					bornAt
+					thumbnails {
+						edges {
+							node {
+								size
+								url
+								width
+							}
+						}
+					}
 				}
 			}
 		}
 	}
 `);
-*/
+
 class MomentList3 extends React.Component {
 	renderItem(index, key) {
 		const moments = this.props.moments.moments.edges;
@@ -161,7 +175,7 @@ class MomentList3 extends React.Component {
 
 				return <div key={i} className="col-sm" style={{paddingBottom: '30px'}}>
 					{moment ?
-						<MomentWidget key={key} data={moments[(index * 4) + i].node} />
+						<MomentWidget key={key} moment={moments[(index * 4) + i].node} />
 					:""}
 				</div>
 			})}
@@ -224,35 +238,7 @@ MomentList3 = createPaginationContainer(MomentList3, {
 				edges {
 					cursor
 					node {
-						id
-						lead {
-							id
-							thumbnail {
-								url
-							}
-						}
-						assets {
-							edges {
-								node {
-									id
-									url
-									type
-									format
-									width
-									height
-									bornAt
-									thumbnails {
-										edges {
-											node {
-												size
-												url
-												width
-											}
-										}
-									}
-								}
-							}
-						}
+						...Moment_moment
 					}
 				}
 				pageInfo {
@@ -308,7 +294,7 @@ class IndexComponent extends React.Component {
 				'Last 30 Days': [moment().subtract(29, 'days'), moment()],
 				'This Month': [moment().startOf('month'), moment().endOf('month')],
 				'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-	
+
 			}
 		};
 	}
