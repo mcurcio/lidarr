@@ -4,5 +4,5 @@
 .DS_Store
 /build
 /schema.json
-/public/__generated__
+/public/**/__generated__
 /test_data
