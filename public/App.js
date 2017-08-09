@@ -8,6 +8,7 @@ import env from './env';
 import ReactList from 'react-list';
 import Lightbox from 'react-images';
 import DateRangePicker from 'react-bootstrap-daterangepicker';
+import moment from 'moment';
 console.log('Lightbox', Lightbox);
 
 import {Button, Navbar} from 'reactstrap';
