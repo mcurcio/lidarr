@@ -13,6 +13,7 @@ console.log('Lightbox', Lightbox);
 import {Button, Navbar} from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import './vendor/dashboard.css';
+import './vendor/daterangepicker.css'
 
 const Header = () => (
 	<Navbar className="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
@@ -320,7 +321,14 @@ render={({error, props}) => {
 		console.log('IndexComponent#render', props);
 		return <div>
 			<h3>Moments</h3>
-			<DateRangePicker>
+			<DateRangePicker ranges={{
+				'Today': [moment(), moment()],
+				'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+				'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+				'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+				'This Month': [moment().startOf('month'), moment().endOf('month')],
+				'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+			}}>
 				<Button className="selected-date-range-btn" style={{width:'100%'}}>
 					<div className="pull-left">{/*<BS.Glyphicon glyph="calendar" />*/}</div>
 					<div className="pull-right">
