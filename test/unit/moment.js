@@ -5,6 +5,18 @@ const path = require('path');
 
 const database = require(libPath('db'));
 
+let __hash = 0;
+function makeAsset(db) {
+	return db.Asset.build({
+		hash: __hash++,
+		type: 'image',
+		format: 'JPEG',
+		width: 1,
+		height: 1,
+		bornAt: momentjs()
+	});
+};
+
 describe('moment', () => {
 	let db;
 	let Moment;
@@ -21,10 +33,10 @@ describe('moment', () => {
 	});
 
 	it('should coalesce adjacent moments', async () => {
-		let asset1 = await Asset.create({
-			hash: "1",
-			bornAt: momentjs("2017-01-01")
-		});
+		let asset1 = makeAsset(db);
+		asset1.bornAt = momentjs("2017-01-01");
+		await asset1.save();
+
 		let moment1 = await asset1.getMoment();
 
 		let start = momentjs(moment1.start);
@@ -32,10 +44,9 @@ describe('moment', () => {
 		assert.ok(momentjs(asset1.bornAt).subtract(Moment.DURATION).isSame(start));
 		assert.ok(momentjs(asset1.bornAt).add(Moment.DURATION).isSame(end));
 
-		let asset2 = await Asset.create({
-			hash: "2",
-			bornAt: momentjs(asset1.bornAt).add(Moment.DURATION)
-		});
+		let asset2 = makeAsset(db);
+		asset2.bornAt = momentjs(asset1.bornAt).add(Moment.DURATION);
+		await asset2.save();
 
 		moment1 = await asset1.getMoment();
 		start = momentjs(moment1.start);
@@ -46,10 +57,9 @@ describe('moment', () => {
 		// the two assets have the same timestamp, so should coalesce to one moment
 		assert.equal(await Moment.count(), 1);
 
-		let asset3 = await Asset.create({
-			hash: "3",
-			bornAt: momentjs(asset2.bornAt).add(Moment.DURATION)
-		})
+		let asset3 = makeAsset(db);
+		asset3.bornAt = momentjs(asset2.bornAt).add(Moment.DURATION);
+		await asset3.save();
 
 		assert.equal(await Moment.count(), 1);
 
@@ -65,17 +75,15 @@ describe('moment', () => {
 		// now add an asset a bit out of range to create a new moment, and then
 		// create another asset in the middle to coalesce the two connecting moments
 
-		let asset4 = await Asset.create({
-			hash: "4",
-			bornAt: momentjs(asset3.bornAt).add(Moment.DURATION).add(Moment.DURATION)
-		});
+		let asset4 = makeAsset(db);
+		asset4.bornAt = momentjs(asset3.bornAt).add(Moment.DURATION).add(Moment.DURATION);
+		await asset4.save();
 
 		assert.equal(await Moment.count(), 2);
 
-		let asset5 = await Asset.create({
-			hash: "5",
-			bornAt: momentjs(asset3.bornAt).add(Moment.DURATION)
-		});
+		let asset5 = makeAsset(db);
+		asset5.bornAt = momentjs(asset3.bornAt).add(Moment.DURATION);
+		await asset5.save();
 
 		assert.equal(await Moment.count(), 1);
 
@@ -110,10 +118,9 @@ describe('moment', () => {
 				end: momentjs("2017-01-03")
 			});
 
-			let asset1 = await Asset.create({
-				hash: "1",
-				bornAt: momentjs("2017-01-02")
-			});
+			let asset1 = makeAsset(db);
+			asset1.bornAt = momentjs("2017-01-02");
+			await asset1.save();
 
 			let [momentCount, assetCount] = await Promise.all([
 				Moment.count(),
@@ -137,14 +144,12 @@ describe('moment', () => {
 
 	it('should have hooks', async () => {
 		return (async () => {
-			let asset1 = await Asset.create({
-				hash: "1",
-				bornAt: momentjs("2017-01-01")
-			});
-			let asset2 = Asset.build({
-				hash: "2",
-				bornAt: momentjs("2017-01-02")
-			});
+			let asset1 = makeAsset(db);
+			asset1.bornAt = momentjs("2017-01-01");
+			await asset1.save();
+
+			let asset2 = makeAsset(db);
+			asset2.bornAt = momentjs("2017-01-02");
 			await asset2.save();
 
 			assert.equal(await Moment.count(), 2);

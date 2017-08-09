@@ -46,7 +46,7 @@ describe('sync', () => {
 		});
 
 		it('should match existing files', async function () {
-			this.timeout(10000);
+			this.timeout(20000);
 
 			const tenv = this.tenv;
 
