@@ -218,6 +218,7 @@ const query = graphql`
 	query MomentsQuery (
 		$count: Int!
 		$cursor: String
+		#$where: 
 		#$orderBy: String!
 	) {
 		viewer {
@@ -233,6 +234,7 @@ MomentList3 = createPaginationContainer(MomentList3, {
 			moments(
 				first: $count
 				after: $cursor
+				where: $where
 				#orderBy: TAKEN # other variables
 			) @connection(key: "MomentList3_moments") {
 				edges {
@@ -269,8 +271,7 @@ MomentList3 = createPaginationContainer(MomentList3, {
 		let obj = {
 			count,
 			cursor,
-			// in most cases, for variables other than connection filters like
-			// `first`, `after`, etc. you may want to use the previous values.
+			where: fragmentVariables.where,
 			orderBy: fragmentVariables.orderBy,
 		};
 		console.log('getVariables', obj);
@@ -285,7 +286,8 @@ class IndexComponent extends React.Component {
 		this.state = {
 			variables: {
 				count: 4 * 4,
-				cursor: null
+				cursor: null,
+				where: {start: {$le: momentjs({y:2015})}}
 			},
 			ranges: {
 				'Today': [moment(), moment()],
