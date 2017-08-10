@@ -33,6 +33,7 @@ describe('sync', () => {
 				tenv.db.Instance.count(),
 				tenv.db.Moment.count()
 			]);
+			tenv.logger.info({assets: await tenv.db.Asset.all()}, "Assets");
 			assert.strictEqual(assetCount, 17);
 			assert.strictEqual(instanceCount, 18);
 			assert.strictEqual(momentCount, 10);
