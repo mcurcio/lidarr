@@ -23,7 +23,9 @@ const path = require('path');
 		await env.db.migrator.up();
 	}
 
-	env.logger.info('Starting up')
+	env.logger.info('Starting up');
+	env.analytics.start();
+	env.analytics.event("system", "starting");
 
 	const server = new lidarr.Server(env);
 	await server.start(8080);
@@ -63,6 +65,7 @@ const path = require('path');
 
 	process.on('SIGINT', () => {
 		env.logger.info("Shutting down");
+		env.analytics.event("system", "stopping");
 
 		(async () => {
 			exiting = true;
