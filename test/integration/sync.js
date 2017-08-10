@@ -10,7 +10,7 @@ describe('sync', () => {
 		const tenvs = [];
 
 		beforeEach(async function () {
-			this.tenv = await TestEnvironment.create();//{console: true, data:"./test_env"});
+			this.tenv = await TestEnvironment.create({console: true});//, data:"./test_env"});
 		});
 
 		afterEach(async function () {
@@ -21,7 +21,7 @@ describe('sync', () => {
 			return tenvs.map(t => t.destroy());
 		});
 
-		it('should work', async function () {
+		it.only('should work', async function () {
 			this.timeout(10000);
 
 			const tenv = this.tenv;
